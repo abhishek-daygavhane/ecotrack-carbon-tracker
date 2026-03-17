@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Community Leaderboard — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🏆</div>
+  <div>
+    <h2 class="fw-bold mb-0">Community Leaderboard</h2>
+    <p class="text-muted mb-0">Lower CO₂ = better rank! 30-day daily average.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- USER RANKINGS -->
+  <div class="col-lg-7">
+    <div class="chart-card">
+      <h5 class="chart-title">👤 Individual Rankings</h5>
+      {% if rankings %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>#</th><th>User</th><th>City</th><th>Avg CO₂/day</th><th>Days Logged</th>
+          </tr></thead>
+          <tbody>
+            {% for i, r in rankings|enumerate %}
+            <tr class="{% if r.user.id == current_user.id %}table-success{% endif %}">
+              <td>
+                {% if i == 0 %}🥇{% elif i == 1 %}🥈{% elif i == 2 %}🥉{% else %}{{ i+1 }}{% endif %}
+              </td>
+              <td class="fw-bold">
+                {{ r.user.name }}
+                {% if r.user.id == current_user.id %}<span class="badge bg-success ms-1">You</span>{% endif %}
+              </td>
+              <td>{{ r.user.city }}</td>
+              <td>
+                <span class="fw-bold {% if r.avg_co2 < 5 %}text-success{% elif r.avg_co2 < 10 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ r.avg_co2 }} kg
+                </span>
+              </td>
+              <td>{{ r.logs_count }} days</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted">No data yet. Be the first to log!</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CITY COMPARISON -->
+  <div class="col-lg-5">
+    <div class="chart-card">
+      <h5 class="chart-title">🏙️ City Comparison</h5>
+      {% if city_labels != '[]' %}
+        <canvas id="cityChart" height="300"></canvas>
+      {% else %}
+        <p class="text-muted">Not enough data across cities yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- HOW TO IMPROVE -->
+  <div class="col-12">
+    <div class="tip-card p-4">
+      <h5 class="fw-bold">💡 How to Climb the Ranks</h5>
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <div class="d-flex align-items-start gap-2">
+            <span>🌿</span>
+            <div><strong>Log every day</strong> — consistency improves your average score.</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-start gap-2">
+            <span>🚲</span>
+            <div><strong>Switch transport</strong> — bus/cycle instead of car saves 0.12 kg/km.</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-start gap-2">
+            <span>🥦</span>
+            <div><strong>Try meatless days</strong> — saves 3+ kg CO₂ per vegetarian day.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cityLabels = {{ city_labels|safe }};
+const cityValues = {{ city_values|safe }};
+
+if (cityLabels.length > 0) {
+  new Chart(document.getElementById('cityChart'), {
+    type: 'bar',
+    data: {
+      labels: cityLabels,
+      datasets: [{
+        label: 'Avg kg CO₂/day',
+        data: cityValues,
+        backgroundColor: cityValues.map(v =>
+          v < 5 ? '#43aa8b' : v < 10 ? '#f4a261' : '#e76f51'
+        ),
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, title: { display: true, text: 'kg CO₂/day' } } }
+    }
+  });
+}
+</script>
+{% endblock %}

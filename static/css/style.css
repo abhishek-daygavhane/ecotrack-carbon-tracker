@@ -1,0 +1,249 @@
+/* ============================================
+   EcoTrack — Carbon Footprint Tracker Styles
+   ============================================ */
+
+:root {
+  --eco-green:   #2d9e5f;
+  --eco-dark:    #1a7a45;
+  --eco-light:   #e8f5ee;
+  --eco-accent:  #f4a261;
+  --text-muted:  #6c757d;
+  --border:      #dee2e6;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+/* ── BASE ──────────────────────────────────── */
+body {
+  background-color: #f8faf9;
+  color: #1e1e1e;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── NAVBAR ────────────────────────────────── */
+.eco-nav {
+  background: linear-gradient(135deg, #1a7a45 0%, #2d9e5f 100%);
+  border-bottom: 2px solid #145e35;
+}
+.eco-nav .nav-link {
+  color: rgba(255,255,255,0.88) !important;
+  transition: color 0.2s;
+  font-size: 0.92rem;
+}
+.eco-nav .nav-link:hover { color: #fff !important; }
+
+/* ── HERO ──────────────────────────────────── */
+.hero-section { padding: 3rem 0; }
+.hero-badge {
+  display: inline-block;
+  background: var(--eco-light);
+  color: var(--eco-green);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: #1e1e1e;
+  line-height: 1.2;
+}
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 580px;
+  margin: 1rem auto 0;
+}
+
+/* ── BUTTONS ───────────────────────────────── */
+.btn-eco-primary {
+  background: var(--eco-green);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-eco-primary:hover {
+  background: var(--eco-dark);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ── STATS BAR ─────────────────────────────── */
+.stats-bar {
+  background: var(--eco-light);
+  border-radius: 16px;
+}
+.stat-item .stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--eco-green);
+}
+.stat-item .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ── FEATURE ICONS ─────────────────────────── */
+.feature-icon {
+  font-size: 2.5rem;
+  display: inline-block;
+  background: var(--eco-light);
+  border-radius: 50%;
+  width: 72px; height: 72px;
+  line-height: 72px;
+  text-align: center;
+}
+
+/* ── CTA SECTION ───────────────────────────── */
+.cta-section {
+  background: linear-gradient(135deg, #e8f5ee, #d0eddf);
+  border-radius: 20px;
+}
+
+/* ── CARDS ─────────────────────────────────── */
+.chart-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid #e8f0ec;
+  height: 100%;
+}
+.chart-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #1e1e1e;
+}
+
+/* ── STAT CARDS (dashboard) ────────────────── */
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid #e8f0ec;
+}
+.stat-card-icon { font-size: 1.6rem; }
+.stat-card-val  { font-size: 1.5rem; font-weight: 800; color: var(--eco-green); }
+.stat-card-label{ font-size: 0.78rem; color: var(--text-muted); }
+
+/* ── BADGE CARDS ───────────────────────────── */
+.badge-card {
+  background: var(--eco-light);
+  border-radius: 12px;
+  border: 1px dashed var(--eco-green);
+  transition: transform 0.2s;
+}
+.badge-card:hover { transform: translateY(-2px); }
+.badge-icon { font-size: 2rem; }
+
+/* ── CALCULATOR ────────────────────────────── */
+.calc-section {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  border-left: 4px solid var(--eco-green);
+}
+.section-title {
+  font-weight: 700;
+  color: var(--eco-dark);
+  margin-bottom: 1rem;
+}
+.live-preview-card {
+  background: var(--eco-light);
+  border-radius: 14px;
+  padding: 1.25rem;
+  border: 1px solid #b5ddc5;
+}
+.preview-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.preview-label { font-size: 0.78rem; color: var(--text-muted); }
+.total-co2-label { font-weight: 600; }
+.total-co2-val  { font-size: 1.3rem; font-weight: 800; color: var(--eco-dark); }
+
+/* ── TIPS PAGE ─────────────────────────────── */
+.tip-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+.tip-card:hover { transform: translateY(-2px); }
+.category-title {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.cat-transport { background: #e8f0ff; color: #2c5cc5; }
+.cat-food      { background: #e8f5ee; color: #1a7a45; }
+.cat-energy    { background: #fff8e6; color: #c17f24; }
+.cat-shopping  { background: #fdeee8; color: #c44d24; }
+.highlighted-cat { outline: 2px solid currentColor; }
+.top-badge {
+  font-size: 0.72rem;
+  background: rgba(255,0,0,0.1);
+  padding: 3px 8px;
+  border-radius: 20px;
+  margin-left: 8px;
+}
+.impact-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.impact-high   { background: #ffe0e0; color: #c0392b; }
+.impact-medium { background: #fff3cd; color: #856404; }
+.impact-low    { background: #d1ecf1; color: #0c5460; }
+
+/* ── AUTH CARD ─────────────────────────────── */
+.auth-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+  margin-top: 2rem;
+}
+
+/* ── PAGE ICON ─────────────────────────────── */
+.page-icon {
+  font-size: 2.2rem;
+  background: var(--eco-light);
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── EMPTY STATE ───────────────────────────── */
+.empty-chart {
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── FOOTER ────────────────────────────────── */
+.eco-footer {
+  background: var(--eco-light);
+  border-top: 1px solid #c8e8d4;
+}
+
+/* ── RESPONSIVE ────────────────────────────── */
+@media (max-width: 576px) {
+  .hero-title { font-size: 1.8rem; }
+  .auth-card  { padding: 1.5rem; margin-top: 0; }
+}

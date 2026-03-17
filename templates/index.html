@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}EcoTrack — Fight Climate Change, One Day at a Time{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section text-center py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="hero-badge mb-3">🌍 Environmental Awareness Project</div>
+      <h1 class="hero-title">Track Your Carbon Footprint</h1>
+      <p class="hero-subtitle">
+        Every person's daily choices matter. Track, reduce, and compete with your community to fight global warming —
+        one day at a time.
+      </p>
+      <div class="d-flex gap-3 justify-content-center mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5">
+          🌱 Start Tracking Free
+        </a>
+        <a href="#how-it-works" class="btn btn-outline-secondary btn-lg px-4">
+          How It Works
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="stats-bar py-4 my-5">
+  <div class="row text-center g-3">
+    <div class="col-6 col-md-3">
+      <div class="stat-item">
+        <div class="stat-number">4.7T</div>
+        <div class="stat-label">Tonnes CO₂ emitted daily (India)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-item">
+        <div class="stat-number">7 kg</div>
+        <div class="stat-label">Average daily carbon per person</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-item">
+        <div class="stat-number">2°C</div>
+        <div class="stat-label">Critical warming limit we must stop</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-item">
+        <div class="stat-number">40%</div>
+        <div class="stat-label">Emissions reducible by lifestyle change</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="py-5">
+  <h2 class="text-center fw-bold mb-5">How EcoTrack Works</h2>
+  <div class="row g-4">
+    <div class="col-md-3 text-center">
+      <div class="feature-icon">🧮</div>
+      <h5 class="fw-bold mt-3">Log Daily Activity</h5>
+      <p class="text-muted">Enter your transport, food, energy, and shopping habits every day.</p>
+    </div>
+    <div class="col-md-3 text-center">
+      <div class="feature-icon">📊</div>
+      <h5 class="fw-bold mt-3">Track Progress</h5>
+      <p class="text-muted">See weekly and monthly charts showing your carbon reduction over time.</p>
+    </div>
+    <div class="col-md-3 text-center">
+      <div class="feature-icon">💡</div>
+      <h5 class="fw-bold mt-3">Get Smart Tips</h5>
+      <p class="text-muted">Receive personalised suggestions based on your highest emission area.</p>
+    </div>
+    <div class="col-md-3 text-center">
+      <div class="feature-icon">🏆</div>
+      <h5 class="fw-bold mt-3">Compete & Win</h5>
+      <p class="text-muted">Compare with friends and cities. Earn badges for green milestones!</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section text-center py-5 my-4">
+  <h2 class="fw-bold">Ready to make a difference?</h2>
+  <p class="text-muted mb-4">Join EcoTrack and take your first step towards a sustainable future.</p>
+  <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5">
+    🌍 Join EcoTrack Now
+  </a>
+</section>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">Welcome back, {{ user.name }}! 🌿</h2>
+    <p class="text-muted">{{ user.city }} • Track, reduce, and earn badges</p>
+  </div>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary">
+    <i class="bi bi-plus-circle"></i> Log Today
+  </a>
+</div>
+
+<!-- STATS CARDS -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📅</div>
+      <div class="stat-card-val">{{ today_log.total_co2 if today_log else '—' }}</div>
+      <div class="stat-card-label">Today (kg CO₂)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📆</div>
+      <div class="stat-card-val">{{ weekly_avg }}</div>
+      <div class="stat-card-label">Weekly Avg (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🗓️</div>
+      <div class="stat-card-val">{{ monthly_total }}</div>
+      <div class="stat-card-label">Monthly Total (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🏅</div>
+      <div class="stat-card-val">{{ badges|length }}</div>
+      <div class="stat-card-label">Badges Earned</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- LINE CHART - 30 day trend -->
+  <div class="col-lg-8">
+    <div class="chart-card">
+      <h5 class="chart-title">📈 30-Day Carbon Trend</h5>
+      {% if logs %}
+        <canvas id="trendChart" height="120"></canvas>
+      {% else %}
+        <div class="empty-chart">
+          <p class="text-muted">No data yet.<br/>
+          <a href="{{ url_for('calculate') }}">Log your first day!</a></p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PIE CHART - breakdown -->
+  <div class="col-lg-4">
+    <div class="chart-card">
+      <h5 class="chart-title">🍕 Emission Breakdown</h5>
+      {% if logs %}
+        <canvas id="pieChart" height="200"></canvas>
+      {% else %}
+        <div class="empty-chart">
+          <p class="text-muted">Log activities to see breakdown.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="col-12">
+    <div class="chart-card">
+      <h5 class="chart-title">🏅 Your Badges</h5>
+      {% if badges %}
+        <div class="row g-3">
+          {% for badge in badges %}
+          <div class="col-6 col-md-3">
+            <div class="badge-card text-center p-3">
+              <div class="badge-icon fs-2">{{ badge.name.split()[0] }}</div>
+              <div class="fw-bold mt-1" style="font-size:0.9rem">{{ badge.name }}</div>
+              <div class="text-muted" style="font-size:0.75rem">{{ badge.description }}</div>
+              <div class="text-muted mt-1" style="font-size:0.7rem">{{ badge.awarded_at.strftime('%d %b %Y') }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">Keep logging to earn badges! 🌱</p>
+        <div class="row g-2 opacity-50">
+          <div class="col-6 col-md-3"><div class="badge-card text-center p-2">🌿 Green Day<br/><small>Under 5 kg CO₂</small></div></div>
+          <div class="col-6 col-md-3"><div class="badge-card text-center p-2">🔥 Week Warrior<br/><small>7 days tracked</small></div></div>
+          <div class="col-6 col-md-3"><div class="badge-card text-center p-2">🏆 Monthly Champion<br/><small>30 days tracked</small></div></div>
+          <div class="col-6 col-md-3"><div class="badge-card text-center p-2">⚡ Carbon Zero Hero<br/><small>Under 3 kg CO₂</small></div></div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RECENT LOGS TABLE -->
+  <div class="col-12">
+    <div class="chart-card">
+      <h5 class="chart-title">📋 Recent Logs</h5>
+      {% if logs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>Date</th><th>Total CO₂</th><th>Transport</th>
+            <th>Food</th><th>Energy</th><th>Shopping</th>
+          </tr></thead>
+          <tbody>
+            {% for log in logs|reverse %}
+            <tr>
+              <td>{{ log.date.strftime('%d %b') }}</td>
+              <td><span class="fw-bold {% if log.total_co2 < 5 %}text-success{% elif log.total_co2 < 10 %}text-warning{% else %}text-danger{% endif %}">
+                {{ log.total_co2 }} kg
+              </span></td>
+              <td>{{ log.transport }}</td>
+              <td>{{ log.food }}</td>
+              <td>{{ log.energy }}</td>
+              <td>{{ log.shopping }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted">No logs yet. <a href="{{ url_for('calculate') }}">Log today's activity!</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const labels = {{ chart_labels|safe }};
+const data   = {{ chart_data|safe }};
+const breakdown = {{ breakdown_totals|safe }};
+
+if (labels.length > 0) {
+  // Line chart
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'kg CO₂',
+        data: data,
+        borderColor: '#2d9e5f',
+        backgroundColor: 'rgba(45,158,95,0.15)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#2d9e5f',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'kg CO₂' } }
+      }
+    }
+  });
+
+  // Pie chart
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Transport', 'Food', 'Energy', 'Shopping'],
+      datasets: [{
+        data: [breakdown.transport, breakdown.food, breakdown.energy, breakdown.shopping],
+        backgroundColor: ['#4e79c4','#43aa8b','#f4a261','#e76f51'],
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}EcoTrack — Carbon Footprint Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark eco-nav sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-4" href="{{ url_for('home') }}">
+        🌍 EcoTrack
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        {% if session.user_id %}
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i>
+              Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('calculate') }}"><i class="bi bi-calculator"></i>
+              Log Today</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('tips') }}"><i class="bi bi-lightbulb"></i> Tips</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('leaderboard') }}"><i class="bi bi-trophy"></i>
+              Leaderboard</a></li>
+          <li class="nav-item"><a class="nav-link text-warning" href="{{ url_for('logout') }}"><i
+                class="bi bi-box-arrow-right"></i> Logout</a></li>
+        </ul>
+        {% else %}
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+          <li class="nav-item"><a class="btn btn-success btn-sm ms-2" href="{{ url_for('register') }}">Get Started</a>
+          </li>
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- FLASH MESSAGES -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="container my-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="eco-footer text-center py-4 mt-5">
+    <p class="mb-0 text-muted">🌱 EcoTrack — Together we can reduce our carbon footprint | @2026 abhidaygavhane</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>
