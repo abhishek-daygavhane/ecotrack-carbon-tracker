@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Climate Awareness — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🌍</div>
+  <div>
+    <h2 class="fw-bold mb-0">Climate Awareness Centre</h2>
+    <p class="text-muted mb-0">Understand the crisis. See your impact. Inspire change.</p>
+  </div>
+</div>
+
+<!-- Your Personal Impact -->
+{% if logs_count > 0 %}
+<div class="impact-hero mb-5">
+  <div class="row g-3 text-center">
+    <div class="col-6 col-md-3">
+      <div class="impact-card">
+        <div class="impact-num text-success">{{ logs_count }}</div>
+        <div class="impact-label">Days Tracked</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="impact-card">
+        <div class="impact-num text-primary">{{ total_saved }}</div>
+        <div class="impact-label">kg CO₂ Saved vs avg</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="impact-card">
+        <div class="impact-num text-warning">{{ trees_equiv }}</div>
+        <div class="impact-label">Trees' annual work</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="impact-card">
+        <div class="impact-num" style="color:var(--eco-green)">🌱</div>
+        <div class="impact-label">You're making a difference!</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Climate Facts Grid -->
+<h4 class="fw-bold mb-3">📊 Key Climate Facts</h4>
+<div class="row g-3 mb-5">
+  {% for fact in facts %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="fact-card h-100 text-center">
+      <div class="fact-icon">{{ fact.icon }}</div>
+      <div class="fact-stat">{{ fact.stat }}</div>
+      <div class="fact-label">{{ fact.label }}</div>
+      <div class="fact-detail">{{ fact.detail }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Timeline of Climate Change -->
+<h4 class="fw-bold mb-3">⏳ Climate Crisis Timeline</h4>
+<div class="timeline mb-5">
+  <div class="timeline-item">
+    <div class="timeline-year">1850s</div>
+    <div class="timeline-content">
+      <strong>Industrial Revolution begins</strong> — Coal-powered factories start releasing CO₂ at unprecedented scale. Atmospheric CO₂ was 280 ppm.
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-year">1958</div>
+    <div class="timeline-content">
+      <strong>Keeling Curve starts</strong> — First systematic CO₂ measurement begins. Reading: 315 ppm. Scientists start tracking the rise.
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-year">1988</div>
+    <div class="timeline-content">
+      <strong>IPCC established</strong> — Intergovernmental Panel on Climate Change formed. Global scientific consensus on human-caused warming begins.
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-year">1997</div>
+    <div class="timeline-content">
+      <strong>Kyoto Protocol</strong> — First international treaty to reduce greenhouse gas emissions. India signed as a developing nation.
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-year">2015</div>
+    <div class="timeline-content">
+      <strong>Paris Agreement</strong> — 196 countries commit to keeping warming below 1.5–2°C. India pledged 40% renewable energy by 2030.
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-year">2023</div>
+    <div class="timeline-content">
+      <strong>Hottest year on record</strong> — Global average temperature hit 1.48°C above pre-industrial levels. Record wildfires, floods worldwide.
+    </div>
+  </div>
+  <div class="timeline-item timeline-future">
+    <div class="timeline-year">2030</div>
+    <div class="timeline-content">
+      <strong>Critical deadline</strong> — Scientists say emissions must fall 43% by 2030 to stay below 1.5°C. Every action today counts!
+    </div>
+  </div>
+</div>
+
+<!-- What YOU Can Do section -->
+<h4 class="fw-bold mb-3">💪 What YOU Can Do Right Now</h4>
+<div class="row g-3 mb-5">
+  <div class="col-md-4">
+    <div class="action-card border-start border-success border-3 ps-3">
+      <h6 class="fw-bold">🌱 As an Individual</h6>
+      <ul class="text-muted ps-3" style="font-size:0.88rem">
+        <li>Track and reduce your daily carbon footprint</li>
+        <li>Plant trees — native species like Neem, Peepal</li>
+        <li>Switch to renewable energy where possible</li>
+        <li>Reduce, reuse, and recycle every day</li>
+        <li>Choose a plant-rich diet even partially</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="action-card border-start border-primary border-3 ps-3">
+      <h6 class="fw-bold">👨‍👩‍👧 As a Community</h6>
+      <ul class="text-muted ps-3" style="font-size:0.88rem">
+        <li>Join or start a local environment group</li>
+        <li>Organise tree plantation drives</li>
+        <li>Promote carpooling in your neighbourhood</li>
+        <li>Advocate for cycle lanes and public transport</li>
+        <li>Educate children about climate change</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="action-card border-start border-warning border-3 ps-3">
+      <h6 class="fw-bold">🏛️ At Policy Level</h6>
+      <ul class="text-muted ps-3" style="font-size:0.88rem">
+        <li>Vote for leaders with strong climate policies</li>
+        <li>Support India's 500 GW solar target</li>
+        <li>Advocate for EV subsidies and infrastructure</li>
+        <li>Support carbon pricing and clean energy laws</li>
+        <li>Hold companies accountable for emissions</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Helpful Resources -->
+<h4 class="fw-bold mb-3">📚 Learn More</h4>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">🌏</div>
+      <h6 class="fw-bold">IPCC Reports</h6>
+      <p class="text-muted" style="font-size:0.85rem">The world's most authoritative climate science. Plain-language summaries available.</p>
+      <span class="resource-tag">Science</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">🇮🇳</div>
+      <h6 class="fw-bold">Ministry of Environment India</h6>
+      <p class="text-muted" style="font-size:0.85rem">India's national climate action plans, policies, and green initiatives.</p>
+      <span class="resource-tag">Policy</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">🌱</div>
+      <h6 class="fw-bold">WWF India</h6>
+      <p class="text-muted" style="font-size:0.85rem">Conservation projects, biodiversity data, and how you can get involved locally.</p>
+      <span class="resource-tag">Action</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">☀️</div>
+      <h6 class="fw-bold">MNRE — Solar Schemes</h6>
+      <p class="text-muted" style="font-size:0.85rem">Government subsidies for rooftop solar. PM Surya Ghar scheme gives up to ₹78,000 subsidy.</p>
+      <span class="resource-tag">Subsidy</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">🚌</div>
+      <h6 class="fw-bold">Sustainable Transport India</h6>
+      <p class="text-muted" style="font-size:0.85rem">Metro expansion, EV policy, and public transit data across Indian cities.</p>
+      <span class="resource-tag">Transport</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="resource-card">
+      <div class="resource-icon">🌳</div>
+      <h6 class="fw-bold">Green India Mission</h6>
+      <p class="text-muted" style="font-size:0.85rem">India's target to increase forest cover by 5 million hectares by 2030.</p>
+      <span class="resource-tag">Forests</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}30-Day Green Challenge — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-2">
+  <div class="page-icon me-3">🔥</div>
+  <div>
+    <h2 class="fw-bold mb-0">30-Day Green Challenge</h2>
+    <p class="text-muted mb-0">One eco-action every day for 30 days. Small steps, massive impact!</p>
+  </div>
+</div>
+
+<!-- Progress bar -->
+<div class="challenge-progress-card mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="fw-bold">Your Progress</span>
+    <span class="fw-bold text-success">{{ [logs_count, 30]|min }} / 30 days logged</span>
+  </div>
+  <div class="progress" style="height:14px;border-radius:10px">
+    <div class="progress-bar bg-success" style="width:{{ ([logs_count, 30]|min / 30 * 100)|int }}%;border-radius:10px">
+    </div>
+  </div>
+  {% if logs_count >= 30 %}
+  <div class="text-center mt-2 text-success fw-bold">🏆 Challenge Complete! You're a Green Champion!</div>
+  {% else %}
+  <div class="text-center mt-2 text-muted" style="font-size:0.85rem">{{ 30 - [logs_count, 30]|min }} more days to complete the challenge!</div>
+  {% endif %}
+</div>
+
+<!-- Challenge Cards Grid -->
+<div class="row g-3">
+  {% for challenge in challenges %}
+  {% set done = loop.index <= logs_count %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="challenge-card text-center {% if done %}challenge-done{% endif %}">
+      <div class="challenge-day">Day {{ challenge.day }}</div>
+      <div class="challenge-emoji">{{ challenge.emoji }}</div>
+      <div class="challenge-title">{{ challenge.title }}</div>
+      <div class="challenge-task">{{ challenge.task }}</div>
+      <div class="challenge-saving">
+        <span class="saving-badge">💚 {{ challenge.saving }}</span>
+      </div>
+      {% if done %}
+      <div class="done-tick">✅ Done!</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Call to action -->
+<div class="eco-note mt-4 p-4 text-center">
+  <h5 class="fw-bold">How to Use This Challenge</h5>
+  <p class="text-muted mb-3">Each day you log your carbon footprint on EcoTrack, you unlock the next challenge. The challenge card for that day shows you exactly what green action to take.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-5">🌱 Log Today & Unlock Next Challenge</a>
+</div>
+{% endblock %}
