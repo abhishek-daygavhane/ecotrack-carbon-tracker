@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block title %}My Carbon Twin — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🪞</div>
+  <div>
+    <h2 class="fw-bold mb-0">My Carbon Digital Twin</h2>
+    <p class="text-muted mb-0">AI-inspired projection of your future carbon impact — inspired by NVIDIA Earth-2</p>
+  </div>
+</div>
+
+<!-- EcoScore -->
+<div class="ecoscore-banner mb-4">
+  <div class="row align-items-center">
+    <div class="col-auto">
+      <div class="ecoscore-circle" style="border-color:{{ eco_color }}">
+        <div class="ecoscore-num" style="color:{{ eco_color }}">{{ ecoscore }}</div>
+        <div class="ecoscore-out">/100</div>
+      </div>
+    </div>
+    <div class="col">
+      <h5 class="fw-bold mb-1" style="color:{{ eco_color }}">EcoScore: {{ eco_label }}</h5>
+      <div class="progress" style="height:8px;border-radius:4px">
+        <div class="progress-bar" style="width:{{ ecoscore }}%;background:{{ eco_color }};border-radius:4px"></div>
+      </div>
+      <div class="text-muted mt-1" style="font-size:0.8rem">Based on emission level, tracking streak, and badges</div>
+    </div>
+  </div>
+</div>
+
+<!-- Projection Cards -->
+<h5 class="fw-bold mb-3">📊 If you continue at <span style="color:#e76f51">{{ proj.daily }} kg CO₂/day</span>:</h5>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="twin-card text-center">
+      <div class="twin-icon">📅</div>
+      <div class="twin-val">{{ proj.monthly }}</div>
+      <div class="twin-label">kg CO₂ in 1 month</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="twin-card text-center">
+      <div class="twin-icon">📆</div>
+      <div class="twin-val text-danger">{{ proj.yearly }}</div>
+      <div class="twin-label">kg CO₂ in 1 year</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="twin-card text-center">
+      <div class="twin-icon">🌳</div>
+      <div class="twin-val text-warning">{{ proj.trees_yearly }}</div>
+      <div class="twin-label">trees needed yearly</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="twin-card text-center">
+      <div class="twin-icon">✈️</div>
+      <div class="twin-val text-danger">{{ proj.flights_eq }}</div>
+      <div class="twin-label">Mumbai–Delhi flights eq.</div>
+    </div>
+  </div>
+</div>
+
+<!-- vs India / World -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="compare-card {% if proj.vs_india_pct < 0 %}compare-good{% else %}compare-bad{% endif %}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">vs India Average (7 kg/day)</div>
+          <div class="text-muted" style="font-size:0.85rem">{{ proj.daily }} kg/day — India avg is 7.0 kg/day</div>
+        </div>
+        <div class="compare-badge {% if proj.vs_india_pct < 0 %}badge-good{% else %}badge-bad{% endif %}">
+          {% if proj.vs_india_pct < 0 %}{{ proj.vs_india_pct|abs }}% BELOW{% else %}{{ proj.vs_india_pct }}% ABOVE{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="compare-card {% if proj.vs_world_pct < 0 %}compare-good{% else %}compare-bad{% endif %}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">vs World Average (13 kg/day)</div>
+          <div class="text-muted" style="font-size:0.85rem">{{ proj.daily }} kg/day — World avg is 13.0 kg/day</div>
+        </div>
+        <div class="compare-badge {% if proj.vs_world_pct < 0 %}badge-good{% else %}badge-bad{% endif %}">
+          {% if proj.vs_world_pct < 0 %}{{ proj.vs_world_pct|abs }}% BELOW{% else %}{{ proj.vs_world_pct }}% ABOVE{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive What-If Simulator -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🔭 What-If Simulator — Live</h5>
+  <p class="text-muted" style="font-size:0.88rem">Drag the sliders to see how changes in your habits affect your yearly CO₂.</p>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">🚗 Reduce transport emissions by</label>
+      <div class="d-flex align-items-center gap-3">
+        <input type="range" id="sl-transport" min="0" max="100" value="0" step="5" style="flex:1" oninput="updateSimulator()"/>
+        <span class="fw-bold text-primary" id="sl-t-val" style="min-width:40px">0%</span>
+      </div>
+      <div class="text-muted" style="font-size:0.78rem">Current: {{ avg_t }} kg/day. Cycle/bus can cut this 60–90%.</div>
+
+      <label class="form-label fw-bold mt-3">⚡ Reduce energy usage by</label>
+      <div class="d-flex align-items-center gap-3">
+        <input type="range" id="sl-energy" min="0" max="80" value="0" step="5" style="flex:1" oninput="updateSimulator()"/>
+        <span class="fw-bold text-warning" id="sl-e-val" style="min-width:40px">0%</span>
+      </div>
+      <div class="text-muted" style="font-size:0.78rem">Current: {{ avg_e }} kg/day. LED + solar can cut 70–80%.</div>
+
+      <label class="form-label fw-bold mt-3">🍽️ Switch diet to</label>
+      <select id="sl-food" class="form-select" onchange="updateSimulator()">
+        <option value="{{ avg_f }}">Current diet ({{ avg_f }} kg/day)</option>
+        <option value="4.67">Some Meat (4.67 kg/day)</option>
+        <option value="3.81">Vegetarian (3.81 kg/day)</option>
+        <option value="2.89">Vegan (2.89 kg/day)</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <div class="simulator-result text-center p-4">
+        <div class="text-muted mb-2" style="font-size:0.85rem">Your projected yearly CO₂</div>
+        <div class="sim-current mb-1">Current: <span class="fw-bold text-danger">{{ proj.yearly }} kg</span></div>
+        <div class="sim-new-label">With these changes:</div>
+        <div class="sim-new-val" id="sim-new">{{ proj.yearly }} <span style="font-size:1rem">kg/year</span></div>
+        <div class="sim-saving mt-2" id="sim-saving"></div>
+        <div class="sim-trees mt-1 text-muted" id="sim-trees"></div>
+        <canvas id="simChart" height="160" style="margin-top:1rem"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Breakdown Donut -->
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="chart-card">
+      <h5 class="chart-title">🍕 Your Emission Breakdown</h5>
+      <canvas id="breakdownChart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="chart-card">
+      <h5 class="chart-title">🌏 5-Year Projection</h5>
+      <canvas id="projectionChart" height="220"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const avgT = {{ avg_t }}, avgF = {{ avg_f }}, avgE = {{ avg_e }}, avgS = {{ avg_s }};
+const currentYearly = {{ proj.yearly }};
+const breakdown = {{ breakdown_json|safe }};
+let simChart = null;
+
+function updateSimulator() {
+  const tRed  = parseFloat(document.getElementById('sl-transport').value) / 100;
+  const eRed  = parseFloat(document.getElementById('sl-energy').value) / 100;
+  const fVal  = parseFloat(document.getElementById('sl-food').value);
+  document.getElementById('sl-t-val').textContent = Math.round(tRed*100) + '%';
+  document.getElementById('sl-e-val').textContent = Math.round(eRed*100) + '%';
+
+  const newDaily  = (avgT*(1-tRed)) + fVal + (avgE*(1-eRed)) + avgS;
+  const newYearly = Math.round(newDaily * 365 * 10) / 10;
+  const saving    = Math.round((currentYearly - newYearly) * 10) / 10;
+  const trees     = Math.round(saving / 22 * 10) / 10;
+
+  document.getElementById('sim-new').innerHTML =
+    `<span style="color:${newYearly < currentYearly ? '#2d9e5f':'#e76f51'}">${newYearly}</span> <span style="font-size:1rem">kg/year</span>`;
+
+  if (saving > 0) {
+    document.getElementById('sim-saving').innerHTML =
+      `<span class="text-success fw-bold">You save ${saving} kg CO₂/year 🎉</span>`;
+    document.getElementById('sim-trees').textContent = `Equivalent to planting ${trees} trees!`;
+  } else if (saving < 0) {
+    document.getElementById('sim-saving').innerHTML =
+      `<span class="text-danger fw-bold">+${Math.abs(saving)} kg more than current</span>`;
+    document.getElementById('sim-trees').textContent = '';
+  } else {
+    document.getElementById('sim-saving').textContent = 'No change from current habits';
+    document.getElementById('sim-trees').textContent = '';
+  }
+
+  if (simChart) simChart.destroy();
+  simChart = new Chart(document.getElementById('simChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Current', 'With Changes'],
+      datasets: [{
+        data: [currentYearly, newYearly],
+        backgroundColor: [newYearly < currentYearly ? '#e76f51':'#e76f51', '#2d9e5f'],
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'kg CO₂/year' } } }
+    }
+  });
+}
+
+// Breakdown donut
+new Chart(document.getElementById('breakdownChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Transport', 'Food', 'Energy', 'Shopping'],
+    datasets: [{
+      data: [breakdown.transport, breakdown.food, breakdown.energy, breakdown.shopping],
+      backgroundColor: ['#4e79c4','#43aa8b','#f4a261','#e76f51'],
+      borderWidth: 2,
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+// 5-year projection chart
+const yearly = {{ proj.yearly }};
+new Chart(document.getElementById('projectionChart'), {
+  type: 'line',
+  data: {
+    labels: ['Now','Year 1','Year 2','Year 3','Year 4','Year 5'],
+    datasets: [
+      { label: 'Current path', data: [0, yearly, yearly*2, yearly*3, yearly*4, yearly*5],
+        borderColor:'#e76f51', backgroundColor:'rgba(231,111,81,0.1)', tension:0.3, fill:true },
+      { label: 'With 30% reduction', data: [0, yearly*0.7, yearly*1.4, yearly*2.1, yearly*2.8, yearly*3.5],
+        borderColor:'#2d9e5f', backgroundColor:'rgba(45,158,95,0.1)', tension:0.3, fill:true },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom' } },
+    scales: { y: { beginAtZero: true, title: { display: true, text: 'Cumulative kg CO₂' } } }
+  }
+});
+
+updateSimulator();
+</script>
+{% endblock %}

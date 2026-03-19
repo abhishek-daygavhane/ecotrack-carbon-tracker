@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Make a Pledge — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🤝</div>
+  <div>
+    <h2 class="fw-bold mb-0">Make a Green Pledge</h2>
+    <p class="text-muted mb-0">Commit to one action. Join the community wall. Make it real.</p>
+  </div>
+</div>
+
+<!-- Community Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🤝</div>
+      <div class="stat-card-val text-success">{{ all_pledges|length }}</div>
+      <div class="stat-card-label">Total Pledges</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">👥</div>
+      <div class="stat-card-val text-primary">{{ pledgers_count }}</div>
+      <div class="stat-card-label">Pledgers</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🌿</div>
+      <div class="stat-card-val text-success">{{ total_community_co2 }}</div>
+      <div class="stat-card-label">kg CO₂ committed</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🌳</div>
+      <div class="stat-card-val text-primary">{{ (total_community_co2 / 22)|round(1) }}</div>
+      <div class="stat-card-label">Trees equivalent</div>
+    </div>
+  </div>
+</div>
+
+<!-- Pledge Selection -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🎯 Choose Your Pledge</h5>
+  <div class="row g-3">
+    {% for p in pledge_options %}
+    <div class="col-md-6">
+      <form method="POST">
+        <input type="hidden" name="pledge_id" value="{{ p.id }}"/>
+        <button type="submit"
+          class="pledge-option w-100 text-start {% if p.id in user_pledge_ids %}pledge-taken{% endif %}"
+          {% if p.id in user_pledge_ids %}disabled{% endif %}>
+          <div class="d-flex align-items-start gap-3">
+            <span style="font-size:1.5rem">{{ p.icon }}</span>
+            <div>
+              <div class="fw-bold" style="font-size:0.9rem">{{ p.text }}</div>
+              <div class="text-muted" style="font-size:0.78rem">Saves ~{{ p.co2_saving }} kg CO₂</div>
+            </div>
+            {% if p.id in user_pledge_ids %}
+              <span class="ms-auto badge bg-success">✅ Pledged</span>
+            {% else %}
+              <span class="ms-auto badge bg-outline-success" style="border:1px solid #2d9e5f;color:#2d9e5f;background:transparent">+ Pledge</span>
+            {% endif %}
+          </div>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Community Pledge Wall -->
+<div class="chart-card">
+  <h5 class="chart-title">🌍 Community Pledge Wall</h5>
+  {% if all_pledges %}
+  <div class="pledge-wall">
+    {% for pledge in all_pledges[:20] %}
+    <div class="pledge-wall-item">
+      <span class="pledge-wall-avatar">{{ pledge.user.name[0]|upper }}</span>
+      <div>
+        <span class="fw-bold" style="font-size:0.88rem">{{ pledge.user.name }}</span>
+        <span class="text-muted" style="font-size:0.82rem"> from {{ pledge.user.city }}</span><br/>
+        <span style="font-size:0.82rem">{{ pledge.text }}</span>
+      </div>
+      <span class="pledge-wall-co2 ms-auto">🌿 {{ pledge.co2_saving }} kg</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">Be the first to make a pledge! 🌱</p>
+  {% endif %}
+</div>
+{% endblock %}

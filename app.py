@@ -1,10 +1,5 @@
-import sys
-if sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8')
-
-import json
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-from models import db, User, CarbonLog, Badge
+from models import db, User, CarbonLog, Badge, Pledge
 from datetime import datetime, timedelta
 from functools import wraps
 import json
@@ -195,6 +190,8 @@ def dashboard():
         'shopping':  round(sum(l.shopping  for l in logs), 2),
     }
 
+    ecoscore, eco_label, eco_color = calculate_ecoscore(user.id)
+
     return render_template('dashboard.html',
         user=user,
         logs=logs,
@@ -205,6 +202,9 @@ def dashboard():
         monthly_total=monthly_total,
         today_log=today_log,
         badges=badges,
+        ecoscore=ecoscore,
+        eco_label=eco_label,
+        eco_color=eco_color,
     )
 
 
@@ -396,6 +396,146 @@ def awareness():
 
 
 # ─────────────────────────────────────────────
+# WHAT-IF SIMULATOR (inspired by Earth-2 scenario modeling)
+# ─────────────────────────────────────────────
+@app.route('/simulator')
+@login_required
+def simulator():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date.desc()).limit(30).all()
+
+    avg_transport = round(sum(l.transport for l in logs) / max(len(logs), 1), 2)
+    avg_food      = round(sum(l.food      for l in logs) / max(len(logs), 1), 2)
+    avg_energy    = round(sum(l.energy    for l in logs) / max(len(logs), 1), 2)
+    avg_shopping  = round(sum(l.shopping  for l in logs) / max(len(logs), 1), 2)
+    avg_total     = round(avg_transport + avg_food + avg_energy + avg_shopping, 2)
+
+    # Future projection: 1 year at current rate
+    yearly_current   = round(avg_total * 365, 1)
+    yearly_if_bus    = round((avg_transport * 0.42 + avg_food + avg_energy + avg_shopping) * 365, 1)
+    yearly_if_veg    = round((avg_transport + 3.81 + avg_energy + avg_shopping) * 365, 1)
+    yearly_if_solar  = round((avg_transport + avg_food + avg_energy * 0.2 + avg_shopping) * 365, 1)
+    yearly_if_all    = round((avg_transport * 0.42 + 3.81 + avg_energy * 0.2 + avg_shopping * 0.5) * 365, 1)
+
+    scenarios = [
+        {"name": "🚌 Switch to Bus/Train",      "yearly": yearly_if_bus,   "saving": round(yearly_current - yearly_if_bus, 1),   "trees": round((yearly_current - yearly_if_bus) / 22, 1)},
+        {"name": "🥦 Go Vegetarian",             "yearly": yearly_if_veg,   "saving": round(yearly_current - yearly_if_veg, 1),   "trees": round((yearly_current - yearly_if_veg) / 22, 1)},
+        {"name": "☀️ Switch to Solar Energy",    "yearly": yearly_if_solar, "saving": round(yearly_current - yearly_if_solar, 1), "trees": round((yearly_current - yearly_if_solar) / 22, 1)},
+        {"name": "🌟 All Changes Combined",      "yearly": yearly_if_all,   "saving": round(yearly_current - yearly_if_all, 1),   "trees": round((yearly_current - yearly_if_all) / 22, 1)},
+    ]
+
+    return render_template('simulator.html',
+        user=user,
+        avg_total=avg_total,
+        yearly_current=yearly_current,
+        scenarios=json.dumps(scenarios),
+        scenarios_list=scenarios,
+        has_data=len(logs) > 0,
+    )
+
+
+# ─────────────────────────────────────────────
+# INDIA CLIMATE RISK MAP (inspired by Earth-2 geospatial)
+# ─────────────────────────────────────────────
+INDIA_CLIMATE_RISKS = {
+    "Maharashtra": {
+        "drought":     "Very High",
+        "heat_stress": "High",
+        "flood":       "Medium",
+        "regions": ["Marathwada (severe drought)", "Vidarbha (extreme heat)", "Konkan (flooding)"],
+        "fact": "Marathwada has faced drought for 6 of last 10 years. Groundwater depleted by 40%.",
+        "co2_contribution": 12.4,
+    },
+    "Rajasthan": {
+        "drought": "Extreme", "heat_stress": "Extreme", "flood": "Low",
+        "regions": ["Thar Desert expansion", "Barmer (45°C+ heat waves)"],
+        "fact": "Jaisalmer recorded 51°C in 2023. Desert is expanding eastward at 0.5 km/year.",
+        "co2_contribution": 8.1,
+    },
+    "Kerala": {
+        "drought": "Low", "heat_stress": "Medium", "flood": "Very High",
+        "regions": ["Wayanad (landslides)", "Alappuzha (coastal flooding)"],
+        "fact": "2018 Kerala floods: worst in 100 years. 483 deaths, ₹31,000 crore damage.",
+        "co2_contribution": 3.2,
+    },
+    "Uttarakhand": {
+        "drought": "Medium", "heat_stress": "Low", "flood": "Very High",
+        "regions": ["Chamoli (glacial lake outbursts)", "Kedarnath zone"],
+        "fact": "Glaciers retreating 20m/year. Himalayan glaciers feed 600 million people downstream.",
+        "co2_contribution": 1.8,
+    },
+    "West Bengal": {
+        "drought": "Medium", "heat_stress": "High", "flood": "Very High",
+        "regions": ["Sundarbans (sea level rise)", "Kolkata (urban heat island)"],
+        "fact": "Sundarbans losing 8 sq km of land yearly to rising seas. 4 million people at risk.",
+        "co2_contribution": 9.7,
+    },
+    "Gujarat": {
+        "drought": "High", "heat_stress": "Very High", "flood": "Medium",
+        "regions": ["Kutch (cyclone zone)", "Saurashtra (water scarcity)"],
+        "fact": "Gujarat coastline faces 6 major cyclones/decade. 2020 cyclone Amphan = ₹1 lakh crore damage.",
+        "co2_contribution": 14.2,
+    },
+}
+
+
+@app.route('/climate-risk')
+@login_required
+def climate_risk():
+    user = User.query.get(session['user_id'])
+    return render_template('climate_risk.html',
+        user=user,
+        risks=INDIA_CLIMATE_RISKS,
+        risks_json=json.dumps(INDIA_CLIMATE_RISKS),
+    )
+
+
+# ─────────────────────────────────────────────
+# COMMUNITY PLEDGE WALL (inspired by Earth-2 collaboration)
+# ─────────────────────────────────────────────
+PLEDGE_OPTIONS = [
+    {"id": "p1", "icon": "🚲", "text": "I will cycle/walk for trips under 2 km",       "co2_saving": 1.5},
+    {"id": "p2", "icon": "🥦", "text": "I will go meat-free at least 3 days/week",     "co2_saving": 10.2},
+    {"id": "p3", "icon": "💡", "text": "I will switch all lights to LED",               "co2_saving": 2.4},
+    {"id": "p4", "icon": "🛍️", "text": "I will carry a reusable bag always",           "co2_saving": 0.5},
+    {"id": "p5", "icon": "🌱", "text": "I will plant at least 1 tree this month",      "co2_saving": 22.0},
+    {"id": "p6", "icon": "🚿", "text": "I will shower in under 5 minutes",             "co2_saving": 0.8},
+    {"id": "p7", "icon": "♻️", "text": "I will segregate wet/dry waste daily",         "co2_saving": 1.2},
+    {"id": "p8", "icon": "🚌", "text": "I will use public transport 5 days/week",      "co2_saving": 18.5},
+    {"id": "p9", "icon": "☀️", "text": "I will explore solar panels for my home",      "co2_saving": 900.0},
+    {"id":"p10", "icon": "📱", "text": "I will spread awareness to 5 friends",          "co2_saving": 50.0},
+]
+
+@app.route('/pledge', methods=['GET', 'POST'])
+@login_required
+def pledge():
+    user = User.query.get(session['user_id'])
+    if request.method == 'POST':
+        pledge_id   = request.form.get('pledge_id')
+        pledge_text = next((p['text'] for p in PLEDGE_OPTIONS if p['id'] == pledge_id), '')
+        pledge_co2  = next((p['co2_saving'] for p in PLEDGE_OPTIONS if p['id'] == pledge_id), 0)
+        existing = Pledge.query.filter_by(user_id=user.id, pledge_id=pledge_id).first()
+        if not existing:
+            db.session.add(Pledge(user_id=user.id, pledge_id=pledge_id, text=pledge_text, co2_saving=pledge_co2))
+            db.session.commit()
+        return redirect(url_for('pledge'))
+
+    all_pledges = Pledge.query.order_by(Pledge.created_at.desc()).all()
+    user_pledge_ids = {p.pledge_id for p in Pledge.query.filter_by(user_id=user.id).all()}
+    total_community_co2 = round(sum(p.co2_saving for p in all_pledges), 1)
+    pledgers_count = db.session.query(Pledge.user_id).distinct().count()
+
+    return render_template('pledge.html',
+        user=user,
+        pledge_options=PLEDGE_OPTIONS,
+        all_pledges=all_pledges,
+        user_pledge_ids=user_pledge_ids,
+        total_community_co2=total_community_co2,
+        pledgers_count=pledgers_count,
+    )
+
+
+# ─────────────────────────────────────────────
 # LEADERBOARD
 # ─────────────────────────────────────────────
 @app.route('/leaderboard')
@@ -471,6 +611,202 @@ def _check_badges(user_id, today_co2):
         award("🏆 Monthly Champion", "30 days of tracking!")
     if today_co2 < 3:
         award("⚡ Carbon Zero Hero", "Logged a day under 3 kg CO₂!")
+
+
+# ─────────────────────────────────────────────
+# ECOSCORE HELPER
+# ─────────────────────────────────────────────
+def calculate_ecoscore(user_id):
+    logs  = CarbonLog.query.filter_by(user_id=user_id).all()
+    if not logs:
+        return 0, "Beginner", "#888"
+    avg        = sum(l.total_co2 for l in logs) / len(logs)
+    consistency= min(len(logs) / 30 * 30, 30)
+    emit_score = max(0, min(50, (10 - avg) * 5 + 20))
+    badge_pts  = min(Badge.query.filter_by(user_id=user_id).count() * 4, 20)
+    score      = int(min(100, consistency + emit_score + badge_pts))
+    if score >= 80:  label, color = "Eco Champion 🏆", "#1a7a45"
+    elif score >= 60:label, color = "Green Warrior 🌿", "#2d9e5f"
+    elif score >= 40:label, color = "Eco Learner 🌱",  "#f4a261"
+    else:            label, color = "Just Starting 🌍", "#e76f51"
+    return score, label, color
+
+
+# ─────────────────────────────────────────────
+# CARBON DIGITAL TWIN  (Earth-2 inspired)
+# ─────────────────────────────────────────────
+@app.route('/my-twin')
+@login_required
+def carbon_twin():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).all()
+    if not logs:
+        flash("Log at least one day first to see your Carbon Twin!", "warning")
+        return redirect(url_for('calculate'))
+
+    avg_daily = sum(l.total_co2 for l in logs) / len(logs)
+    india_avg  = 7.0
+    world_avg  = 13.0
+
+    # Breakdown averages
+    avg_t = round(sum(l.transport for l in logs)/len(logs), 2)
+    avg_f = round(sum(l.food      for l in logs)/len(logs), 2)
+    avg_e = round(sum(l.energy    for l in logs)/len(logs), 2)
+    avg_s = round(sum(l.shopping  for l in logs)/len(logs), 2)
+
+    proj = {
+        'daily':       round(avg_daily, 2),
+        'monthly':     round(avg_daily * 30, 1),
+        'yearly':      round(avg_daily * 365, 1),
+        'five_years':  round(avg_daily * 365 * 5, 1),
+        'trees_yearly':round(avg_daily * 365 / 22, 1),
+        'flights_eq':  round(avg_daily * 365 / 255, 1),
+        'vs_india_pct':round(((avg_daily - india_avg) / india_avg) * 100, 1),
+        'vs_world_pct':round(((avg_daily - world_avg) / world_avg) * 100, 1),
+    }
+
+    # What-if sliders default values
+    what_if = {
+        'transport_reduce': 50,
+        'food_switch':      'vegetarian',
+        'energy_reduce':    30,
+    }
+
+    ecoscore, eco_label, eco_color = calculate_ecoscore(user.id)
+    breakdown_json = json.dumps({'transport': avg_t, 'food': avg_f,
+                                  'energy': avg_e, 'shopping': avg_s})
+
+    return render_template('carbon_twin.html',
+        user=user, proj=proj, ecoscore=ecoscore,
+        eco_label=eco_label, eco_color=eco_color,
+        avg_t=avg_t, avg_f=avg_f, avg_e=avg_e, avg_s=avg_s,
+        breakdown_json=breakdown_json,
+        india_avg=india_avg, world_avg=world_avg,
+    )
+
+
+# ─────────────────────────────────────────────
+# AI SMART ADVISOR  (Earth-2 AI insight inspired)
+# ─────────────────────────────────────────────
+AI_TIPS_BANK = {
+    'transport': [
+        "Switch from car to bus/train for your daily commute — saves up to 0.13 kg CO₂ per km.",
+        "Consider cycling short distances under 5 km — zero emissions and great for health!",
+        "Try carpooling with colleagues — halves your per-person transport emissions instantly.",
+        "Work from home even 1 day/week cuts your commute footprint by 20%.",
+    ],
+    'food': [
+        "Try Meatless Monday — cutting meat once a week saves ~3.4 kg CO₂ per week.",
+        "Buy vegetables from your local market instead of supermarket — lower transport emissions.",
+        "Plan your weekly meals to reduce food waste — 40% of Indian food is wasted.",
+        "Switch to a fully vegetarian diet — saves ~0.86 kg CO₂ per day vs average.",
+    ],
+    'energy': [
+        "Set your AC to 24°C minimum — every degree lower uses 6% more electricity.",
+        "Unplug phone chargers, TV, and set-top box when not in use — saves 10% standby power.",
+        "Replace remaining incandescent bulbs with LED — uses 75% less energy.",
+        "Explore the PM Surya Ghar scheme for rooftop solar — up to ₹78,000 subsidy available!",
+    ],
+    'shopping': [
+        "Buy one item second-hand this week instead of new — zero manufacturing emissions.",
+        "Carry a reusable bag and bottle daily — saves ~500 plastic bags per year.",
+        "Avoid fast fashion — choose quality over quantity, one durable item over three cheap ones.",
+        "Repair before replace — fixing a garment or device avoids ~3 kg CO₂ of new manufacturing.",
+    ],
+}
+
+@app.route('/ai-advisor')
+@login_required
+def ai_advisor():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(
+                CarbonLog.date.desc()).limit(14).all()
+
+    context = {}
+    smart_tips = []
+
+    if logs:
+        avg = round(sum(l.total_co2 for l in logs)/len(logs), 2)
+        breakdown = {
+            'transport': round(sum(l.transport for l in logs)/len(logs), 2),
+            'food':      round(sum(l.food      for l in logs)/len(logs), 2),
+            'energy':    round(sum(l.energy    for l in logs)/len(logs), 2),
+            'shopping':  round(sum(l.shopping  for l in logs)/len(logs), 2),
+        }
+        # Rank categories by emission
+        ranked = sorted(breakdown.items(), key=lambda x: x[1], reverse=True)
+        context = {
+            'avg': avg, 'breakdown': breakdown,
+            'top1': ranked[0][0], 'top2': ranked[1][0],
+            'days': len(logs),
+        }
+        # Build personalised tip list
+        import random
+        for cat, _ in ranked[:3]:
+            tips_pool = AI_TIPS_BANK.get(cat, [])
+            if tips_pool:
+                smart_tips.append({'category': cat, 'tip': random.choice(tips_pool)})
+
+        # Trend analysis
+        if len(logs) >= 7:
+            recent_avg = sum(l.total_co2 for l in logs[:7]) / 7
+            older_avg  = sum(l.total_co2 for l in logs[7:]) / max(len(logs)-7, 1)
+            context['trend'] = 'improving' if recent_avg < older_avg else 'worsening'
+            context['trend_pct'] = abs(round((recent_avg - older_avg)/max(older_avg,0.01)*100, 1))
+        else:
+            context['trend'] = 'insufficient'
+    else:
+        context = {'avg': 0, 'days': 0, 'trend': 'no_data'}
+
+    ecoscore, eco_label, eco_color = calculate_ecoscore(user.id)
+
+    return render_template('ai_advisor.html',
+        user=user, context=context,
+        smart_tips=smart_tips,
+        ecoscore=ecoscore, eco_label=eco_label, eco_color=eco_color,
+    )
+
+
+# ─────────────────────────────────────────────
+# WEATHER TIP API  (no API key needed — wttr.in)
+# ─────────────────────────────────────────────
+@app.route('/api/weather')
+@login_required
+def weather_tip():
+    import urllib.request
+    user = User.query.get(session['user_id'])
+    city = user.city or 'Pune'
+    try:
+        url = f"https://wttr.in/{city}?format=j1"
+        req = urllib.request.Request(url, headers={'User-Agent': 'EcoTrack/1.0'})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read())
+        temp_c    = int(data['current_condition'][0]['temp_C'])
+        condition = data['current_condition'][0]['weatherDesc'][0]['value']
+
+        if temp_c > 38:
+            tip = f"🌡️ {temp_c}°C in {city}! Use fan instead of AC — saves 90% energy."
+            icon = "🔥"
+        elif temp_c > 30:
+            tip = f"☀️ {temp_c}°C — hot day! Set AC to 24°C, not lower. Saves 6% per degree."
+            icon = "☀️"
+        elif 'Rain' in condition or 'Drizzle' in condition:
+            tip = f"🌧️ Raining in {city}! Collect rainwater for plants and cleaning today."
+            icon = "🌧️"
+        elif temp_c < 15:
+            tip = f"🧊 Only {temp_c}°C! Wear warm clothes instead of an electric heater."
+            icon = "❄️"
+        else:
+            tip = f"🌤️ {temp_c}°C — perfect weather for cycling or walking today!"
+            icon = "🌿"
+
+        return jsonify({'temp': temp_c, 'condition': condition,
+                        'city': city, 'tip': tip, 'icon': icon})
+    except Exception:
+        return jsonify({'temp': '--', 'condition': 'Unavailable',
+                        'city': city,
+                        'tip': '🌱 Every day is a good day to reduce your carbon footprint!',
+                        'icon': '🌍'})
 
 
 # ─────────────────────────────────────────────

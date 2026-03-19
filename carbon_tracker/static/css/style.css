@@ -392,3 +392,146 @@ body {
   border-radius: 20px;
   margin-top: 4px;
 }
+
+/* ── ECOSCORE ──────────────────────────────── */
+.ecoscore-banner {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid #e8f0ec;
+}
+.ecoscore-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 4px solid;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #fff;
+}
+.ecoscore-num { font-size: 1.4rem; font-weight: 800; line-height: 1; }
+.ecoscore-out { font-size: 0.65rem; color: var(--text-muted); }
+
+/* ── WEATHER CARD ──────────────────────────── */
+.weather-card { border-left: 4px solid var(--eco-green) !important; border-radius: 0 14px 14px 0 !important; }
+
+/* ── CARBON TWIN ───────────────────────────── */
+.twin-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.2rem 1rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+}
+.twin-icon  { font-size: 1.8rem; margin-bottom: 6px; }
+.twin-val   { font-size: 1.6rem; font-weight: 800; color: #1e1e1e; }
+.twin-label { font-size: 0.75rem; color: var(--text-muted); }
+
+.compare-card {
+  border-radius: 12px; padding: 1rem 1.25rem;
+  border: 1px solid var(--border); background: #fff;
+  box-shadow: var(--card-shadow);
+}
+.compare-good { border-left: 4px solid var(--eco-green); }
+.compare-bad  { border-left: 4px solid #e76f51; }
+.compare-badge {
+  font-size: 0.75rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+}
+.badge-good { background: #e8f5ee; color: #1a7a45; }
+.badge-bad  { background: #fdeee8; color: #c44d24; }
+
+.simulator-result {
+  background: var(--eco-light);
+  border-radius: 14px; border: 1px solid #c8e8d4;
+}
+.sim-current { font-size: 0.85rem; color: var(--text-muted); }
+.sim-new-label { font-size: 0.85rem; color: var(--text-muted); }
+.sim-new-val   { font-size: 2rem; font-weight: 800; }
+.sim-saving    { font-size: 0.95rem; }
+.sim-trees     { font-size: 0.82rem; }
+
+/* ── AI ADVISOR ────────────────────────────── */
+.advisor-card {
+  background: #fff; border-radius: 14px;
+  padding: 1.25rem; box-shadow: var(--card-shadow);
+  border: 1px solid var(--border); text-align: center;
+}
+.advisor-icon  { font-size: 2rem; margin-bottom: 6px; }
+.advisor-val   { font-size: 1.5rem; font-weight: 800; color: #1e1e1e; }
+.advisor-label { font-size: 0.8rem; font-weight: 600; color: #333; }
+.advisor-tip-card {
+  background: var(--eco-light);
+  border-radius: 12px; padding: 1.1rem 1.25rem;
+  border: 1px solid #c8e8d4;
+}
+.advisor-tip-cat {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--eco-dark); margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.checklist-row {
+  background: #fff; border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.checklist-day {
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--eco-light); color: var(--eco-dark);
+  padding: 3px 8px; border-radius: 20px; min-width: 36px;
+  text-align: center;
+}
+
+/* ── SIMULATOR ─────────────────────────────── */
+.sim-baseline {
+  background: #fff; border-radius: 14px;
+  padding: 1.25rem 1.5rem; box-shadow: var(--card-shadow);
+  border-left: 4px solid #e76f51;
+}
+.scenario-card {
+  background: #fff; border-radius: 12px;
+  padding: 1.1rem 1.25rem; box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
+}
+.scenario-card:hover { transform: translateY(-2px); }
+.scenario-positive { border-left: 4px solid var(--eco-green) !important; }
+.scenario-saving-badge {
+  font-size: 0.75rem; font-weight: 700;
+  background: var(--eco-light); color: var(--eco-dark);
+  padding: 3px 10px; border-radius: 20px;
+}
+.sim-mini-val   { font-size: 1.1rem; font-weight: 700; }
+.sim-mini-label { font-size: 0.7rem; color: var(--text-muted); }
+.city-impact-card {
+  background: var(--eco-light); border-radius: 10px;
+  padding: 1rem; border: 1px solid #c8e8d4;
+}
+
+/* ── PLEDGE ────────────────────────────────── */
+.pledge-option {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.1rem;
+  transition: all 0.18s; cursor: pointer;
+}
+.pledge-option:hover:not(:disabled) {
+  border-color: var(--eco-green);
+  background: var(--eco-light);
+  transform: translateY(-1px);
+}
+.pledge-taken { background: #e8f5ee !important; border-color: var(--eco-green) !important; cursor: default; }
+.pledge-wall  { display: flex; flex-direction: column; gap: 10px; }
+.pledge-wall-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 12px; background: var(--eco-light);
+  border-radius: 10px; border: 1px solid #c8e8d4;
+}
+.pledge-wall-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--eco-green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+}
+.pledge-wall-co2 {
+  font-size: 0.78rem; font-weight: 600; color: var(--eco-dark);
+  white-space: nowrap; padding-top: 2px;
+}

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}What-If Simulator — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🔭</div>
+  <div>
+    <h2 class="fw-bold mb-0">What-If Simulator</h2>
+    <p class="text-muted mb-0">See how small lifestyle changes create massive collective impact</p>
+  </div>
+</div>
+
+{% if not has_data %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">📊</div>
+  <h5 class="fw-bold mt-2">Log some days first!</h5>
+  <p class="text-muted">The simulator uses your real emission data for accurate projections.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4">Log Today's Activity</a>
+</div>
+{% else %}
+
+<!-- Your current baseline -->
+<div class="sim-baseline mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <h5 class="fw-bold mb-1">Your current daily average: <span class="text-danger">{{ avg_total }} kg CO₂</span></h5>
+      <p class="text-muted mb-0">At this rate, you emit <strong>{{ yearly_current }} kg CO₂ per year</strong></p>
+    </div>
+    <div class="col-md-6">
+      <canvas id="currentBar" height="60"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario Cards -->
+<h5 class="fw-bold mb-3">🌟 Pick a Scenario — See Your Impact</h5>
+<div class="row g-3 mb-4" id="scenario-cards">
+  {% set scenarios_list = scenarios_list %}
+  {% for sc in scenarios_list %}
+  <div class="col-md-6">
+    <div class="scenario-card {% if sc.saving > 0 %}scenario-positive{% endif %}"
+         onclick="highlightScenario({{ loop.index0 }})">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h6 class="fw-bold mb-0">{{ sc.name }}</h6>
+        <span class="scenario-saving-badge">
+          {% if sc.saving > 0 %}-{{ sc.saving }} kg/yr{% else %}+{{ sc.saving|abs }} kg/yr{% endif %}
+        </span>
+      </div>
+      <div class="row g-2 text-center">
+        <div class="col-4">
+          <div class="sim-mini-val {% if sc.saving > 0 %}text-success{% else %}text-danger{% endif %}">{{ sc.yearly }}</div>
+          <div class="sim-mini-label">kg/year</div>
+        </div>
+        <div class="col-4">
+          <div class="sim-mini-val text-success">{{ sc.saving }}</div>
+          <div class="sim-mini-label">kg saved</div>
+        </div>
+        <div class="col-4">
+          <div class="sim-mini-val text-primary">{{ sc.trees }}</div>
+          <div class="sim-mini-label">trees equiv.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Main comparison chart -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">📊 Yearly CO₂ Comparison</h5>
+  <canvas id="compChart" height="120"></canvas>
+</div>
+
+<!-- City-scale impact -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🏙️ If Your Whole City Did This...</h5>
+  <p class="text-muted" style="font-size:0.85rem">Collective impact if everyone in your city adopted these changes:</p>
+
+  {% set city_populations = {
+    'Mumbai': 20700000, 'Pune': 7400000, 'Nagpur': 2900000,
+    'Nashik': 1560000, 'Aurangabad': 1400000, 'Solapur': 960000,
+  } %}
+  {% set city_pop = city_populations.get(user.city, 1000000) %}
+
+  <div class="row g-3">
+    {% for sc in scenarios_list %}
+    {% if sc.saving > 0 %}
+    <div class="col-md-6">
+      <div class="city-impact-card">
+        <div class="fw-bold">{{ sc.name }}</div>
+        <div class="d-flex justify-content-between mt-2" style="font-size:0.85rem">
+          <span class="text-muted">{{ user.city }} saves:</span>
+          <span class="fw-bold text-success">{{ (sc.saving * city_pop / 1e6)|round(1) }}M kg CO₂/year</span>
+        </div>
+        <div class="d-flex justify-content-between" style="font-size:0.85rem">
+          <span class="text-muted">= Trees planted:</span>
+          <span class="fw-bold text-primary">{{ (sc.saving * city_pop / 22 / 1e6)|round(1) }}M trees</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Call to action -->
+<div class="eco-note p-4 text-center">
+  <h5 class="fw-bold">🌍 Ready to Make a Change?</h5>
+  <p class="text-muted mb-3">Choose the scenario that fits you best and commit to it this week.</p>
+  <div class="d-flex gap-3 justify-content-center flex-wrap">
+    <a href="{{ url_for('pledge') }}"   class="btn btn-eco-primary px-4">🤝 Make a Pledge</a>
+    <a href="{{ url_for('tips') }}"     class="btn btn-outline-success px-4">💡 See All Tips</a>
+    <a href="{{ url_for('challenges') }}" class="btn btn-outline-secondary px-4">🔥 Start 30-Day Challenge</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script>
+const scenarios = {{ scenarios|safe }};
+const currentYearly = {{ yearly_current }};
+
+new Chart(document.getElementById('currentBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Your annual CO₂'],
+    datasets: [{ data: [currentYearly], backgroundColor: '#e76f51', borderRadius: 6 }]
+  },
+  options: { responsive:true, indexAxis:'y', plugins:{legend:{display:false}},
+             scales:{x:{title:{display:true, text:'kg CO₂/year'}}} }
+});
+
+new Chart(document.getElementById('compChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Current', ...scenarios.map(s => s.name)],
+    datasets: [{
+      data: [currentYearly, ...scenarios.map(s => s.yearly)],
+      backgroundColor: ['#e76f51', ...scenarios.map(s => s.saving > 0 ? '#2d9e5f':'#f4a261')],
+      borderRadius: 6,
+    }]
+  },
+  options: { responsive:true, plugins:{legend:{display:false}},
+             scales:{y:{beginAtZero:true, title:{display:true, text:'kg CO₂/year'}}} }
+});
+
+function highlightScenario(idx) {
+  document.querySelectorAll('.scenario-card').forEach((c,i) => {
+    c.style.transform = i===idx ? 'scale(1.02)' : '';
+    c.style.boxShadow = i===idx ? '0 4px 20px rgba(45,158,95,0.3)' : '';
+  });
+}
+</script>
+{% endif %}
+{% endblock %}

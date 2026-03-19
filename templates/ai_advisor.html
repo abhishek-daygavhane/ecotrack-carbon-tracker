@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}AI Smart Advisor — EcoTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🤖</div>
+  <div>
+    <h2 class="fw-bold mb-0">AI Smart Advisor</h2>
+    <p class="text-muted mb-0">Personalised insights based on your actual carbon data</p>
+  </div>
+</div>
+
+<!-- EcoScore -->
+<div class="ecoscore-banner mb-4">
+  <div class="row align-items-center">
+    <div class="col-auto">
+      <div class="ecoscore-circle" style="border-color:{{ eco_color }}">
+        <div class="ecoscore-num" style="color:{{ eco_color }}">{{ ecoscore }}</div>
+        <div class="ecoscore-out">/100</div>
+      </div>
+    </div>
+    <div class="col">
+      <h5 class="fw-bold mb-0" style="color:{{ eco_color }}">{{ eco_label }}</h5>
+      <div class="text-muted" style="font-size:0.85rem">EcoScore based on your last {{ context.days }} days of data</div>
+    </div>
+  </div>
+</div>
+
+{% if context.days == 0 %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">🌱</div>
+  <h5 class="fw-bold mt-2">No data yet!</h5>
+  <p class="text-muted">Log at least a few days of activity to get personalised AI advice.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4">Log Today's Activity</a>
+</div>
+
+{% else %}
+
+<!-- Analysis Summary -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="advisor-card advisor-stat">
+      <div class="advisor-icon">📊</div>
+      <div class="advisor-val">{{ context.avg }} kg</div>
+      <div class="advisor-label">Daily average CO₂</div>
+      <div class="text-muted" style="font-size:0.75rem">Over {{ context.days }} logged days</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="advisor-card advisor-stat">
+      <div class="advisor-icon">
+        {% if context.trend == 'improving' %}📉{% elif context.trend == 'worsening' %}📈{% else %}📊{% endif %}
+      </div>
+      <div class="advisor-val {% if context.trend == 'improving' %}text-success{% elif context.trend == 'worsening' %}text-danger{% endif %}">
+        {% if context.trend == 'improving' %}Improving!
+        {% elif context.trend == 'worsening' %}Worsening
+        {% else %}Keep going!{% endif %}
+      </div>
+      <div class="advisor-label">Emission trend</div>
+      {% if context.trend in ['improving','worsening'] %}
+      <div class="text-muted" style="font-size:0.75rem">{{ context.trend_pct }}% vs previous week</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="advisor-card advisor-stat">
+      <div class="advisor-icon">🎯</div>
+      <div class="advisor-val text-capitalize">{{ context.top1 }}</div>
+      <div class="advisor-label">Your highest emission area</div>
+      <div class="text-muted" style="font-size:0.75rem">Focus here for maximum impact</div>
+    </div>
+  </div>
+</div>
+
+<!-- Personalised Tips from AI -->
+<h5 class="fw-bold mb-3">💡 Your Personalised Action Plan</h5>
+{% if smart_tips %}
+<div class="row g-3 mb-4">
+  {% for item in smart_tips %}
+  <div class="col-md-4">
+    <div class="advisor-tip-card h-100">
+      <div class="advisor-tip-cat text-capitalize">
+        {% if item.category == 'transport' %}🚗{% elif item.category == 'food' %}🍽️{% elif item.category == 'energy' %}⚡{% else %}🛍️{% endif %}
+        {{ item.category }}
+      </div>
+      <p class="mb-0" style="font-size:0.88rem;line-height:1.6">{{ item.tip }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Comparison Table -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🌏 How You Compare</h5>
+  <div class="table-responsive">
+    <table class="table align-middle" style="font-size:0.9rem">
+      <thead><tr><th>Benchmark</th><th>kg CO₂/day</th><th>Your Status</th><th>Visual</th></tr></thead>
+      <tbody>
+        {% set benchmarks = [
+          ('🌱 Sustainable target', 2.74),
+          ('🇮🇳 India average', 7.0),
+          ('🌍 World average', 13.0),
+          ('🇺🇸 USA average', 43.0),
+        ] %}
+        {% for label, val in benchmarks %}
+        <tr>
+          <td>{{ label }}</td>
+          <td>{{ val }}</td>
+          <td>
+            {% if context.avg <= val %}
+              <span class="badge bg-success">✅ Below</span>
+            {% else %}
+              <span class="badge bg-danger">⚠️ Above</span>
+            {% endif %}
+          </td>
+          <td style="width:200px">
+            <div class="progress" style="height:8px">
+              {% set pct = [(context.avg / val * 100)|int, 200]|min %}
+              <div class="progress-bar {% if context.avg <= val %}bg-success{% else %}bg-danger{% endif %}"
+                   style="width:{{ [pct, 100]|min }}%"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Weekly Action Checklist -->
+<div class="chart-card">
+  <h5 class="chart-title">✅ This Week's Action Checklist</h5>
+  <p class="text-muted" style="font-size:0.85rem">Based on your top emission category: <strong class="text-capitalize">{{ context.top1 }}</strong></p>
+  <div class="row g-2">
+    {% set checklists = {
+      'transport': [
+        ('Mon', 'Walk or cycle for at least one trip'),
+        ('Tue', 'Check public transport options for your commute'),
+        ('Wed', 'Try carpooling with a colleague or friend'),
+        ('Thu', 'Plan your trips to avoid unnecessary driving'),
+        ('Fri', 'Calculate how much CO₂ you saved this week'),
+      ],
+      'food': [
+        ('Mon', 'Cook a vegetarian meal — no meat today'),
+        ('Tue', 'Buy vegetables from your local market'),
+        ('Wed', 'Plan meals for the rest of week to avoid waste'),
+        ('Thu', 'Try a new plant-based recipe'),
+        ('Fri', 'Check what needs to be used before it spoils'),
+      ],
+      'energy': [
+        ('Mon', 'Unplug all idle devices before bed tonight'),
+        ('Tue', 'Switch AC to 24°C minimum'),
+        ('Wed', 'Use natural light instead of bulbs till 6pm'),
+        ('Thu', 'Check for any dripping taps or running water'),
+        ('Fri', 'Research PM Surya Ghar solar subsidy scheme'),
+      ],
+      'shopping': [
+        ('Mon', 'Use a reusable bag for all shopping today'),
+        ('Tue', 'Resist one online purchase — delay it 48 hrs'),
+        ('Wed', 'Fix or repair something instead of buying new'),
+        ('Thu', 'Check OLX/Facebook for a second-hand alternative'),
+        ('Fri', 'Review your week — did you avoid any waste?'),
+      ],
+    } %}
+    {% set actions = checklists.get(context.top1, checklists['transport']) %}
+    {% for day, action in actions %}
+    <div class="col-12">
+      <div class="d-flex align-items-center gap-3 checklist-row p-2">
+        <span class="checklist-day">{{ day }}</span>
+        <span style="font-size:0.88rem">{{ action }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

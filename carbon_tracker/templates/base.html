@@ -24,9 +24,23 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('calculate') }}"><i class="bi bi-calculator"></i> Log Today</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('tips') }}"><i class="bi bi-lightbulb"></i> Tips</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('challenges') }}"><i class="bi bi-fire"></i> Challenges</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('awareness') }}"><i class="bi bi-globe-asia-australia"></i> Awareness</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-lightbulb"></i> Learn</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('tips') }}">💡 50+ Tips</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('challenges') }}">🔥 30-Day Challenge</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('awareness') }}">🌍 Climate Awareness</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('pledge') }}">🤝 Make a Pledge</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-graph-up"></i> My Impact</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('carbon_twin') }}">🪞 My Carbon Twin</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('ai_advisor') }}">🤖 AI Advisor</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('simulator') }}">🔭 What-If Simulator</a></li>
+          </ul>
+        </li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('leaderboard') }}"><i class="bi bi-trophy"></i> Leaderboard</a></li>
         <li class="nav-item"><a class="nav-link text-warning" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
       </ul>

@@ -12,34 +12,69 @@
   </a>
 </div>
 
-<!-- STATS CARDS -->
+<!-- ECOSCORE BANNER -->
+<div class="ecoscore-banner mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-2 text-center">
+      <div class="ecoscore-circle" style="border-color:{{ eco_color }}">
+        <div class="ecoscore-num" style="color:{{ eco_color }}">{{ ecoscore }}</div>
+        <div class="ecoscore-out">/100</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h5 class="fw-bold mb-1" style="color:{{ eco_color }}">{{ eco_label }}</h5>
+      <p class="text-muted mb-2" style="font-size:0.88rem">Your EcoScore is calculated from your emission levels, tracking consistency, and badges earned.</p>
+      <div class="progress" style="height:10px;border-radius:5px">
+        <div class="progress-bar" style="width:{{ ecoscore }}%;background:{{ eco_color }};border-radius:5px"></div>
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <a href="{{ url_for('carbon_twin') }}" class="btn btn-eco-primary btn-sm me-2">🪞 My Twin</a>
+      <a href="{{ url_for('ai_advisor') }}" class="btn btn-outline-success btn-sm">🤖 AI Advisor</a>
+    </div>
+  </div>
+</div>
+
+<!-- WEATHER WIDGET + STATS -->
 <div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
+  <div class="col-12 col-md-4">
+    <div class="stat-card weather-card" id="weather-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span id="w-icon" style="font-size:1.6rem">🌍</span>
+        <div>
+          <div class="stat-card-val" id="w-temp" style="font-size:1.2rem">--°C</div>
+          <div class="stat-card-label" id="w-city">{{ user.city }}</div>
+        </div>
+      </div>
+      <div id="w-tip" class="text-muted" style="font-size:0.78rem;line-height:1.4">Loading today's eco tip...</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">📅</div>
       <div class="stat-card-val">{{ today_log.total_co2 if today_log else '—' }}</div>
       <div class="stat-card-label">Today (kg CO₂)</div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">📆</div>
       <div class="stat-card-val">{{ weekly_avg }}</div>
-      <div class="stat-card-label">Weekly Avg (kg)</div>
+      <div class="stat-card-label">Weekly Avg</div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">🗓️</div>
       <div class="stat-card-val">{{ monthly_total }}</div>
-      <div class="stat-card-label">Monthly Total (kg)</div>
+      <div class="stat-card-label">Monthly Total</div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">🏅</div>
       <div class="stat-card-val">{{ badges|length }}</div>
-      <div class="stat-card-label">Badges Earned</div>
+      <div class="stat-card-label">Badges</div>
     </div>
   </div>
 </div>
@@ -146,7 +181,6 @@ const data   = {{ chart_data|safe }};
 const breakdown = {{ breakdown_totals|safe }};
 
 if (labels.length > 0) {
-  // Line chart
   new Chart(document.getElementById('trendChart'), {
     type: 'line',
     data: {
@@ -165,13 +199,10 @@ if (labels.length > 0) {
     options: {
       responsive: true,
       plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'kg CO₂' } }
-      }
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'kg CO₂' } } }
     }
   });
 
-  // Pie chart
   new Chart(document.getElementById('pieChart'), {
     type: 'doughnut',
     data: {
@@ -188,5 +219,18 @@ if (labels.length > 0) {
     }
   });
 }
+
+// Weather widget
+fetch('/api/weather')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('w-icon').textContent = d.icon || '🌍';
+    document.getElementById('w-temp').textContent = d.temp !== '--' ? d.temp + '°C' : '--';
+    document.getElementById('w-city').textContent = d.city;
+    document.getElementById('w-tip').textContent  = d.tip;
+  })
+  .catch(() => {
+    document.getElementById('w-tip').textContent = '🌱 Every choice today shapes tomorrow\'s climate.';
+  });
 </script>
 {% endblock %}

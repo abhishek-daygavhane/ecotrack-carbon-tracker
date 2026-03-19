@@ -7,10 +7,6 @@ Run this ONCE before starting the app for the first time:
 This creates the SQLite database file and all tables.
 """
 
-import sys
-if sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8')
-
 from app import app, db
 from models import User, CarbonLog, Badge
 

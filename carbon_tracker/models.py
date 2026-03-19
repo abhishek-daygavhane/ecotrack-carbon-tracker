@@ -42,6 +42,19 @@ class CarbonLog(db.Model):
         return f'<CarbonLog {self.date} {self.total_co2} kg>'
 
 
+class Pledge(db.Model):
+    __tablename__ = 'pledges'
+    id          = db.Column(db.Integer, primary_key=True)
+    user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    pledge_id   = db.Column(db.String(10), nullable=False)
+    text        = db.Column(db.String(255))
+    co2_saving  = db.Column(db.Float, default=0.0)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Pledge {self.pledge_id} by user {self.user_id}>'
+
+
 class Badge(db.Model):
     __tablename__ = 'badges'
     id          = db.Column(db.Integer, primary_key=True)
