@@ -67,4 +67,4 @@ carbon_tracker/
 - **Shopping:** 0.5 kg CO₂ per ₹100 spent
 
 ## 👥 Team
-Built for Hackathon 2024 — EcoTrack Team
+ TechPravah
