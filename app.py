@@ -841,7 +841,7 @@ def db_check():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()   # Creates tables if they don't exist (safe to run every time)
-        print("[OK] Database ready - tables created/verified.")
-        print("[*] EcoTrack running at http://127.0.0.1:5000")
-        print("[*] DB check: http://127.0.0.1:5000/db-check")
+        print("✅  Database ready — tables created/verified.")
+        print("🌍  EcoTrack running at http://127.0.0.1:5000")
+        print("🔍  DB check: http://127.0.0.1:5000/db-check")
     app.run(debug=True)

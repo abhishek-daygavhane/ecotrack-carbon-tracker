@@ -66,4 +66,5 @@ carbon_tracker/
 - **Electricity:** 0.82 kg CO₂/kWh (India grid factor)
 - **Shopping:** 0.5 kg CO₂ per ₹100 spent
 
-## 👥 Team TechPravah 
+## 👥 Team
+Built for Hackathon 2024 — EcoTrack Team

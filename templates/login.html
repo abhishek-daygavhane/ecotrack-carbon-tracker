@@ -3,13 +3,11 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-5">
-    <div class="auth-card">
-      <div class="text-center mb-4">
-        <div class="fs-1">🌍</div>
-        <h3 class="fw-bold">Welcome back</h3>
-        <p class="text-muted">Login to continue tracking</p>
-      </div>
-      <form method="POST">
+    <div class="auth-card text-center">
+      <div style="font-size:3rem;margin-bottom:0.5rem">🌿</div>
+      <h2 style="font-family:'DM Serif Display',serif;color:var(--green-dark)">Welcome back</h2>
+      <p class="text-muted mb-4">Login to continue tracking</p>
+      <form method="POST" class="text-start">
         <div class="mb-3">
           <label class="form-label">Email</label>
           <input type="email" name="email" class="form-control" required placeholder="you@example.com"/>
@@ -20,7 +18,7 @@
         </div>
         <button type="submit" class="btn btn-eco-primary w-100 btn-lg">Login</button>
       </form>
-      <p class="text-center mt-3 text-muted">Don't have an account? <a href="{{ url_for('register') }}">Register free</a></p>
+      <p class="text-center mt-3 text-muted" style="font-size:0.88rem">Don't have an account? <a href="{{ url_for('register') }}" style="color:var(--green-main);font-weight:700">Register free</a></p>
     </div>
   </div>
 </div>

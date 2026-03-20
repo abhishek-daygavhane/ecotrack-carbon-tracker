@@ -5,14 +5,14 @@
 <div class="d-flex align-items-center mb-3">
   <div class="page-icon me-3">💡</div>
   <div>
-    <h2 class="fw-bold mb-0">50+ Ways to Reduce Your Carbon Footprint</h2>
+    <h2 class="fw-bold mb-0"><span data-lang-key="tips.title">50+ Ways to Reduce Your Carbon Footprint</span></h2>
     <p class="text-muted mb-0">Your highest emission area: <strong class="text-danger text-capitalize">{{ top_category }}</strong> — focus here first!</p>
   </div>
 </div>
 
 <!-- Filter Buttons -->
 <div class="tips-filter-bar mb-4 d-flex flex-wrap gap-2">
-  <button class="btn btn-filter active" onclick="filterTips('all', this)">All Tips</button>
+  <button class="btn btn-filter active" onclick="filterTips('all', this)"><span data-lang-key="tips.all">All Tips</span></button>
   <button class="btn btn-filter" onclick="filterTips('transport', this)">🚗 Transport</button>
   <button class="btn btn-filter" onclick="filterTips('food', this)">🍽️ Food</button>
   <button class="btn btn-filter" onclick="filterTips('energy', this)">⚡ Energy</button>
@@ -20,7 +20,7 @@
   <button class="btn btn-filter" onclick="filterTips('water', this)">💧 Water</button>
   <button class="btn btn-filter" onclick="filterTips('waste', this)">♻️ Waste</button>
   <button class="btn btn-filter" onclick="filterTips('green_habits', this)">🌱 Green Habits</button>
-  <button class="btn btn-filter btn-filter-high" onclick="filterImpact('High', this)">🔴 High Impact Only</button>
+  <button class="btn btn-filter btn-filter-high" onclick="filterImpact('High', this)">🔴 <span data-lang-key="tips.highonly">High Impact Only</span></button>
 </div>
 
 {% set category_meta = {

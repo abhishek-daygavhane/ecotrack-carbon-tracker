@@ -8,8 +8,8 @@
     <div class="d-flex align-items-center mb-4">
       <div class="page-icon me-3">🧮</div>
       <div>
-        <h2 class="fw-bold mb-0">Log Today's Carbon Footprint</h2>
-        <p class="text-muted mb-0">Fill in your daily activities to calculate your CO₂ impact</p>
+        <h2 class="fw-bold mb-0"><span data-lang-key="calc.title">Log Today's Carbon Footprint</span></h2>
+        <p class="text-muted mb-0"><span data-lang-key="calc.sub">Fill in your daily activities to calculate your CO₂ impact</span></p>
       </div>
     </div>
 
@@ -18,7 +18,7 @@
       <div class="row text-center">
         <div class="col-3">
           <div class="preview-val text-primary" id="prev-transport">0.00</div>
-          <div class="preview-label">🚗 Transport</div>
+          <div class="preview-label">🚗 <span data-lang-key="calc.transport">Transport</span></div>
         </div>
         <div class="col-3">
           <div class="preview-val text-success" id="prev-food">0.00</div>
@@ -35,7 +35,7 @@
       </div>
       <hr/>
       <div class="text-center">
-        <span class="total-co2-label">Today's Total: </span>
+        <span class="total-co2-label"><span data-lang-key="calc.preview">Today's Total</span>: </span>
         <span class="total-co2-val" id="total-preview">0.00 kg CO₂</span>
       </div>
     </div>
@@ -47,7 +47,7 @@
         <h5 class="section-title">🚗 Transport</h5>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Mode of Transport</label>
+            <label class="form-label"><span data-lang-key="calc.mode">Mode of Transport</span></label>
             <select name="transport_mode" id="transport_mode" class="form-select" onchange="updatePreview()">
               <option value="car">🚗 Car / Two-wheeler</option>
               <option value="bus">🚌 Bus</option>
@@ -57,7 +57,7 @@
             </select>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Distance Travelled (km)</label>
+            <label class="form-label"><span data-lang-key="calc.km">Distance Travelled (km)</span></label>
             <input type="number" name="transport_km" id="transport_km" class="form-control"
                    placeholder="e.g. 20" min="0" step="0.1" value="0" oninput="updatePreview()"/>
           </div>
@@ -66,8 +66,8 @@
 
       <!-- FOOD -->
       <div class="calc-section mb-4">
-        <h5 class="section-title">🍽️ Food & Diet</h5>
-        <label class="form-label">Today's diet type</label>
+        <h5 class="section-title">🍽️ <span data-lang-key="calc.food">Food & Diet</span></h5>
+        <label class="form-label"><span data-lang-key="calc.diettype">Today's diet type</span></label>
         <div class="row g-2">
           <div class="col-6 col-md-3">
             <input type="radio" class="btn-check" name="food_type" id="meat_heavy" value="meat_heavy" onchange="updatePreview()"/>
@@ -90,16 +90,16 @@
 
       <!-- ENERGY -->
       <div class="calc-section mb-4">
-        <h5 class="section-title">⚡ Home Energy</h5>
+        <h5 class="section-title">⚡ <span data-lang-key="calc.energy">Home Energy</span></h5>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Electricity Used Today (kWh)</label>
+            <label class="form-label"><span data-lang-key="calc.elec">Electricity Used Today (kWh)</span></label>
             <input type="number" name="electricity_kwh" id="electricity_kwh" class="form-control"
                    placeholder="e.g. 5" min="0" step="0.1" value="0" oninput="updatePreview()"/>
             <div class="form-text">Avg Indian home uses ~10 kWh/day</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">LPG Used (kg)</label>
+            <label class="form-label"><span data-lang-key="calc.lpg">LPG Used (kg)</span></label>
             <input type="number" name="lpg_kg" id="lpg_kg" class="form-control"
                    placeholder="e.g. 0.2" min="0" step="0.05" value="0" oninput="updatePreview()"/>
             <div class="form-text">1 cylinder ≈ 14.2 kg</div>
@@ -109,15 +109,15 @@
 
       <!-- SHOPPING -->
       <div class="calc-section mb-4">
-        <h5 class="section-title">🛍️ Shopping & Purchases</h5>
-        <label class="form-label">Amount Spent Today (₹)</label>
+        <h5 class="section-title">🛍️ <span data-lang-key="calc.shopping">Shopping & Purchases</span></h5>
+        <label class="form-label"><span data-lang-key="calc.spend">Amount Spent Today (₹)</span></label>
         <input type="number" name="shopping_spend" id="shopping_spend" class="form-control"
                placeholder="e.g. 500" min="0" step="10" value="0" oninput="updatePreview()" style="max-width:300px"/>
         <div class="form-text">Covers clothes, electronics, household goods, etc.</div>
       </div>
 
       <button type="submit" class="btn btn-eco-primary btn-lg px-5 w-100">
-        🌱 Save My Footprint for Today
+        🌱 <span data-lang-key="calc.savebtn">Save My Footprint for Today</span>
       </button>
     </form>
   </div>

@@ -4,8 +4,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h2 class="fw-bold mb-0">Welcome back, {{ user.name }}! 🌿</h2>
-    <p class="text-muted">{{ user.city }} • Track, reduce, and earn badges</p>
+    <h2 class="fw-bold mb-0"><span data-lang-key="dash.welcome">Welcome back</span>, {{ user.name }}! 🌿</h2>
+    <p class="text-muted">{{ user.city }} • <span data-lang-key="dash.subtitle">Track, reduce, and earn badges</span></p>
   </div>
   <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary">
     <i class="bi bi-plus-circle"></i> Log Today
@@ -23,14 +23,14 @@
     </div>
     <div class="col-md-6">
       <h5 class="fw-bold mb-1" style="color:{{ eco_color }}">{{ eco_label }}</h5>
-      <p class="text-muted mb-2" style="font-size:0.88rem">Your EcoScore is calculated from your emission levels, tracking consistency, and badges earned.</p>
+      <p class="text-muted mb-2" style="font-size:0.88rem"><span data-lang-key="dash.ecoscore">Your EcoScore is calculated from your emission levels, tracking consistency, and badges earned.</span></p>
       <div class="progress" style="height:10px;border-radius:5px">
         <div class="progress-bar" style="width:{{ ecoscore }}%;background:{{ eco_color }};border-radius:5px"></div>
       </div>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-      <a href="{{ url_for('carbon_twin') }}" class="btn btn-eco-primary btn-sm me-2">🪞 My Twin</a>
-      <a href="{{ url_for('ai_advisor') }}" class="btn btn-outline-success btn-sm">🤖 AI Advisor</a>
+      <a href="{{ url_for('carbon_twin') }}" class="btn btn-eco-primary btn-sm me-2"><span data-lang-key="dash.mytwin">🪞 My Twin</span></a>
+      <a href="{{ url_for('ai_advisor') }}" class="btn btn-outline-success btn-sm"><span data-lang-key="dash.advisor">🤖 AI Advisor</span></a>
     </div>
   </div>
 </div>
@@ -46,35 +46,35 @@
           <div class="stat-card-label" id="w-city">{{ user.city }}</div>
         </div>
       </div>
-      <div id="w-tip" class="text-muted" style="font-size:0.78rem;line-height:1.4">Loading today's eco tip...</div>
+      <div id="w-tip" class="text-muted" style="font-size:0.78rem;line-height:1.4"><span data-lang-key="dash.loading">Loading today's eco tip...</span></div>
     </div>
   </div>
   <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">📅</div>
       <div class="stat-card-val">{{ today_log.total_co2 if today_log else '—' }}</div>
-      <div class="stat-card-label">Today (kg CO₂)</div>
+      <div class="stat-card-label"><span data-lang-key="dash.today">Today (kg CO₂)</span></div>
     </div>
   </div>
   <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">📆</div>
       <div class="stat-card-val">{{ weekly_avg }}</div>
-      <div class="stat-card-label">Weekly Avg</div>
+      <div class="stat-card-label"><span data-lang-key="dash.weekavg">Weekly Avg</span></div>
     </div>
   </div>
   <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">🗓️</div>
       <div class="stat-card-val">{{ monthly_total }}</div>
-      <div class="stat-card-label">Monthly Total</div>
+      <div class="stat-card-label"><span data-lang-key="dash.monthtotal">Monthly Total</span></div>
     </div>
   </div>
   <div class="col-6 col-md-2">
     <div class="stat-card text-center">
       <div class="stat-card-icon">🏅</div>
       <div class="stat-card-val">{{ badges|length }}</div>
-      <div class="stat-card-label">Badges</div>
+      <div class="stat-card-label"><span data-lang-key="dash.badges">Badges</span></div>
     </div>
   </div>
 </div>
@@ -84,7 +84,7 @@
   <!-- LINE CHART - 30 day trend -->
   <div class="col-lg-8">
     <div class="chart-card">
-      <h5 class="chart-title">📈 30-Day Carbon Trend</h5>
+      <h5 class="chart-title">📈 <span data-lang-key="dash.trend">30-Day Carbon Trend</span></h5>
       {% if logs %}
         <canvas id="trendChart" height="120"></canvas>
       {% else %}
@@ -99,7 +99,7 @@
   <!-- PIE CHART - breakdown -->
   <div class="col-lg-4">
     <div class="chart-card">
-      <h5 class="chart-title">🍕 Emission Breakdown</h5>
+      <h5 class="chart-title">🍕 <span data-lang-key="dash.breakdown">Emission Breakdown</span></h5>
       {% if logs %}
         <canvas id="pieChart" height="200"></canvas>
       {% else %}
@@ -113,7 +113,7 @@
   <!-- BADGES -->
   <div class="col-12">
     <div class="chart-card">
-      <h5 class="chart-title">🏅 Your Badges</h5>
+      <h5 class="chart-title">🏅 <span data-lang-key="dash.mybadges">Your Badges</span></h5>
       {% if badges %}
         <div class="row g-3">
           {% for badge in badges %}
@@ -128,7 +128,7 @@
           {% endfor %}
         </div>
       {% else %}
-        <p class="text-muted">Keep logging to earn badges! 🌱</p>
+        <p class="text-muted"><span data-lang-key="dash.keeplogging">Keep logging to earn badges! 🌱</span></p>
         <div class="row g-2 opacity-50">
           <div class="col-6 col-md-3"><div class="badge-card text-center p-2">🌿 Green Day<br/><small>Under 5 kg CO₂</small></div></div>
           <div class="col-6 col-md-3"><div class="badge-card text-center p-2">🔥 Week Warrior<br/><small>7 days tracked</small></div></div>
@@ -142,7 +142,7 @@
   <!-- RECENT LOGS TABLE -->
   <div class="col-12">
     <div class="chart-card">
-      <h5 class="chart-title">📋 Recent Logs</h5>
+      <h5 class="chart-title">📋 <span data-lang-key="dash.recentlogs">Recent Logs</span></h5>
       {% if logs %}
       <div class="table-responsive">
         <table class="table table-hover align-middle">

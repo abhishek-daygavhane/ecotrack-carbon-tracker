@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Community Leaderboard — EcoTrack{% endblock %}
+{% block title %}<span data-lang-key="lb.title">Community Leaderboard</span> — EcoTrack{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
   <div class="page-icon me-3">🏆</div>
   <div>
     <h2 class="fw-bold mb-0">Community Leaderboard</h2>
-    <p class="text-muted mb-0">Lower CO₂ = better rank! 30-day daily average.</p>
+    <p class="text-muted mb-0"><span data-lang-key="lb.sub">Lower CO₂ = better rank! 30-day daily average.</span></p>
   </div>
 </div>
 
@@ -15,7 +15,7 @@
   <!-- USER RANKINGS -->
   <div class="col-lg-7">
     <div class="chart-card">
-      <h5 class="chart-title">👤 Individual Rankings</h5>
+      <h5 class="chart-title">👤 <span data-lang-key="lb.individual">Individual Rankings</span></h5>
       {% if rankings %}
       <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -54,7 +54,7 @@
   <!-- CITY COMPARISON -->
   <div class="col-lg-5">
     <div class="chart-card">
-      <h5 class="chart-title">🏙️ City Comparison</h5>
+      <h5 class="chart-title">🏙️ <span data-lang-key="lb.city">City Comparison</span></h5>
       {% if city_labels != '[]' %}
         <canvas id="cityChart" height="300"></canvas>
       {% else %}

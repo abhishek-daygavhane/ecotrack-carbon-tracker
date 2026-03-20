@@ -1,113 +1,128 @@
 {% extends 'base.html' %}
-{% block title %}EcoTrack — Fight Climate Change, One Day at a Time{% endblock %}
-
+{% block title %}EcoTrack — Track Your Carbon Footprint, Save the Planet{% endblock %}
 {% block content %}
+
 <!-- HERO -->
-<section class="hero-section text-center py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="hero-badge mb-3">🌍 Environmental Awareness Project</div>
-      <h1 class="hero-title">Track Your Carbon Footprint</h1>
-      <p class="hero-subtitle">
+<section class="hero-section text-center">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-lg-7 animate-up">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        <span data-lang-key="home.eyebrow">Environmental Awareness Project</span>
+      </div>
+      <h1 class="hero-title">
+        <span data-lang-key="home.title1">Track Your</span>
+        <span class="accent"> <span data-lang-key="home.title2">Carbon Footprint</span>,</span><br/>
+        <span class="amber" data-lang-key="home.title3">Save the Planet</span>
+      </h1>
+      <p class="hero-sub" data-lang-key="home.sub">
         Every person's daily choices matter. Track, reduce, and compete with your community to fight global warming — one day at a time.
       </p>
-      <div class="d-flex gap-3 justify-content-center mt-4">
-        <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5">
-          🌱 Start Tracking Free
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5" data-lang-key="home.cta">
+          Start Tracking Free
         </a>
-        <a href="#how-it-works" class="btn btn-outline-secondary btn-lg px-4">
+        <a href="#how" class="btn btn-lg px-4" style="border:2px solid rgba(26,92,56,0.25);border-radius:14px;font-weight:700;color:var(--green-main)" data-lang-key="home.how">
           How It Works
         </a>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- STATS BAR -->
-<section class="stats-bar py-4 my-5">
-  <div class="row text-center g-3">
-    <div class="col-6 col-md-3">
-      <div class="stat-item">
-        <div class="stat-number">4.7T</div>
-        <div class="stat-label">Tonnes CO₂ emitted daily (India)</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-item">
-        <div class="stat-number">7 kg</div>
-        <div class="stat-label">Average daily carbon per person</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-item">
-        <div class="stat-number">2°C</div>
-        <div class="stat-label">Critical warming limit we must stop</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-item">
-        <div class="stat-number">40%</div>
-        <div class="stat-label">Emissions reducible by lifestyle change</div>
-      </div>
+    <div class="col-lg-3 d-none d-lg-block animate-up animate-up-delay-2">
+      <div class="hero-visual">🌍</div>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section id="how-it-works" class="py-5">
-  <h2 class="text-center fw-bold mb-5">How EcoTrack Works</h2>
+<!-- STATS STRIP -->
+<div class="stats-strip animate-up animate-up-delay-1">
+  <div class="row text-center g-3 align-items-center">
+    <div class="col-6 col-md-3">
+      <div class="stat-strip-num">4.7T</div>
+      <div class="stat-strip-label" data-lang-key="home.stat1">Tonnes CO₂ emitted daily</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-strip-num">7 kg</div>
+      <div class="stat-strip-label" data-lang-key="home.stat2">Avg daily carbon/person</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-strip-num">1.5°C</div>
+      <div class="stat-strip-label" data-lang-key="home.stat3">Critical warming limit</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-strip-num">40%</div>
+      <div class="stat-strip-label" data-lang-key="home.stat4">Emissions reducible by lifestyle</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="how" class="py-5">
+  <h2 class="text-center mb-2" style="font-size:2.2rem;color:var(--green-dark)" data-lang-key="home.features">How EcoTrack Works</h2>
+  <p class="text-center text-muted mb-5" style="font-size:1rem">Inspired by NVIDIA Earth-2 — bringing climate intelligence to everyday life</p>
   <div class="row g-4">
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🧮</div>
-      <h5 class="fw-bold mt-3">Log Daily Activity</h5>
-      <p class="text-muted">Enter your transport, food, energy, and shopping habits every day.</p>
+    <div class="col-md-3 animate-up animate-up-delay-1">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-green">🧮</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f1title">Log Daily Activity</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f1desc">Enter your transport, food, energy, and shopping habits every day.</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">📊</div>
-      <h5 class="fw-bold mt-3">Track Progress</h5>
-      <p class="text-muted">See weekly and monthly charts showing your carbon reduction over time.</p>
+    <div class="col-md-3 animate-up animate-up-delay-2">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-sky">📊</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f2title">Track Progress</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f2desc">See weekly and monthly charts showing your carbon reduction over time.</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">💡</div>
-      <h5 class="fw-bold mt-3">50+ Green Tips</h5>
-      <p class="text-muted">Personalised suggestions across transport, food, energy, water, waste and more.</p>
+    <div class="col-md-3 animate-up animate-up-delay-3">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-amber">💡</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f3title">50+ Green Tips</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f3desc">Personalised suggestions across transport, food, energy, water, waste and more.</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🔥</div>
-      <h5 class="fw-bold mt-3">30-Day Challenge</h5>
-      <p class="text-muted">Take one green action every day. Unlock badges and compete with your city!</p>
+    <div class="col-md-3 animate-up animate-up-delay-4">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-coral">🔥</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f4title">30-Day Challenge</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f4desc">Take one green action every day. Unlock badges and compete with your city!</p>
+      </div>
     </div>
-  </div>
-  <div class="row g-4 mt-1">
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🏆</div>
-      <h5 class="fw-bold mt-3">Leaderboard</h5>
-      <p class="text-muted">Compare with friends and cities. See who's making the most difference.</p>
+    <div class="col-md-3">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-green">🏆</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f5title">Leaderboard</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f5desc">Compare with friends and cities. See who's making the most difference.</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🌍</div>
-      <h5 class="fw-bold mt-3">Climate Awareness</h5>
-      <p class="text-muted">Learn key climate facts, India's context, and what you can do at every level.</p>
+    <div class="col-md-3">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-sky">🌍</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f6title">Climate Awareness</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f6desc">Learn key climate facts, India's context, and what you can do at every level.</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🏅</div>
-      <h5 class="fw-bold mt-3">Earn Badges</h5>
-      <p class="text-muted">Get rewarded for green milestones — Green Day, Week Warrior, Carbon Zero Hero!</p>
+    <div class="col-md-3">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-amber">🏅</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f7title">Earn Badges</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f7desc">Get rewarded for green milestones — Green Day, Week Warrior, Carbon Zero Hero!</p>
+      </div>
     </div>
-    <div class="col-md-3 text-center">
-      <div class="feature-icon">🌳</div>
-      <h5 class="fw-bold mt-3">Tree Impact Meter</h5>
-      <p class="text-muted">See how many trees' worth of CO₂ you've saved vs the India average.</p>
+    <div class="col-md-3">
+      <div class="feature-card">
+        <div class="feature-icon-wrap ficon-coral">🪞</div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f8title">Carbon Twin</h5>
+        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f8desc">See how many trees' worth of CO₂ you've saved vs the India average.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section class="cta-section text-center py-5 my-4">
-  <h2 class="fw-bold">Ready to make a difference?</h2>
-  <p class="text-muted mb-4">Join EcoTrack and take your first step towards a sustainable future.</p>
-  <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5">
-    🌍 Join EcoTrack Now
-  </a>
-</section>
+<div class="text-center py-5 my-3" style="background:linear-gradient(135deg,var(--green-mist),var(--cream));border-radius:var(--radius-xl);padding:3rem!important">
+  <h2 style="font-size:2rem;color:var(--green-dark)" data-lang-key="home.cta2title">Ready to make a difference?</h2>
+  <p class="text-muted mb-4" data-lang-key="home.cta2sub">Join EcoTrack and take your first step towards a sustainable future.</p>
+  <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5" data-lang-key="home.cta2btn">Join EcoTrack Now</a>
+</div>
 {% endblock %}
