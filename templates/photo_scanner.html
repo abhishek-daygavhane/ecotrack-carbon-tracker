@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Photo Carbon Scanner — EcoTrack{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">📸</div>
+  <div>
+    <h2 class="fw-bold mb-0">Photo Carbon Scanner</h2>
+    <p class="text-muted mb-0">तुमचे जेवण describe करा → AI carbon footprint calculate करेल</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <!-- Camera / Upload -->
+    <div class="chart-card mb-4">
+      <h5 class="chart-title">📷 Food Photo & Description</h5>
+      <div id="camera-area" style="background:var(--cream);border:2px dashed var(--green-pale);border-radius:12px;padding:2rem;text-align:center;margin-bottom:1rem">
+        <div id="preview-wrap" style="display:none">
+          <video id="cam-video" autoplay style="width:100%;border-radius:8px;max-height:220px;object-fit:cover"></video>
+          <canvas id="snap-canvas" style="display:none;width:100%;border-radius:8px"></canvas>
+          <img id="snap-img" style="display:none;width:100%;border-radius:8px;max-height:220px;object-fit:cover"/>
+        </div>
+        <div id="placeholder">
+          <div style="font-size:4rem">🍽️</div>
+          <p class="text-muted mb-3" style="font-size:0.88rem">Camera किंवा photo upload करा</p>
+          <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <button class="btn btn-eco-primary btn-sm" onclick="startCamera()">📷 Camera</button>
+            <label class="btn btn-outline-secondary btn-sm" style="cursor:pointer">
+              📁 Upload <input type="file" accept="image/*" onchange="uploadPhoto(this)" style="display:none"/>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div id="cam-controls" style="display:none;text-align:center;margin-bottom:12px">
+        <button class="btn btn-eco-primary btn-sm me-2" onclick="snapPhoto()">📸 Snap</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="stopCamera()">✕ Stop</button>
+      </div>
+
+      <label class="form-label">Describe your meal (English / मराठी)</label>
+      <textarea id="food-desc" class="form-control" rows="3" placeholder="e.g. chicken rice dal salad, or आज मी चिकन बिर्याणी खाल्ली..."></textarea>
+      <div class="d-flex align-items-center gap-3 mt-3">
+        <label class="form-label mb-0">Portions:</label>
+        <input type="number" id="portions" value="1" min="1" max="5" class="form-control" style="width:80px"/>
+        <button class="btn btn-eco-primary px-4" onclick="analyzeFood()">🔍 Analyze Carbon</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="chart-card" id="result-card" style="display:none">
+      <h5 class="chart-title">📊 Carbon Analysis Result</h5>
+      <div class="text-center mb-3">
+        <div style="font-family:'DM Serif Display',serif;font-size:3.5rem;line-height:1" id="res-total">0</div>
+        <div style="font-size:0.75rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.06em">kg CO₂ for this meal</div>
+      </div>
+      <div id="res-items" class="mb-3"></div>
+      <div class="eco-note p-3" id="res-tip"></div>
+      <div class="mt-3 p-3" style="background:var(--amber-light);border-radius:10px;font-size:0.85rem" id="res-vs"></div>
+    </div>
+
+    <div class="chart-card mt-4">
+      <h5 class="chart-title">📚 Common Food Carbon Values</h5>
+      <div style="overflow-x:auto">
+        <table class="table" style="font-size:0.82rem">
+          <thead><tr><th>Food</th><th>kg CO₂</th><th>Marathi</th></tr></thead>
+          <tbody>
+            <tr><td>🥩 Beef</td><td class="text-danger">7.19</td><td>गोमांस</td></tr>
+            <tr><td>🍗 Chicken</td><td class="text-warning">4.67</td><td>चिकन</td></tr>
+            <tr><td>🍛 Biryani</td><td class="text-warning">3.2</td><td>बिर्याणी</td></tr>
+            <tr><td>🧀 Cheese</td><td class="text-warning">6.1</td><td>चीज</td></tr>
+            <tr><td>🫘 Dal</td><td class="text-success">0.9</td><td>डाळ</td></tr>
+            <tr><td>🥦 Vegetables</td><td class="text-success">0.4</td><td>भाज्या</td></tr>
+            <tr><td>🌾 Rice/Roti</td><td class="text-success">0.5–2.7</td><td>भात/रोटी</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let stream = null;
+
+function startCamera() {
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('preview-wrap').style.display = 'block';
+  document.getElementById('cam-controls').style.display = 'block';
+  navigator.mediaDevices.getUserMedia({video:true})
+    .then(s => { stream = s; document.getElementById('cam-video').srcObject = s; })
+    .catch(() => alert('Camera access denied. Upload a photo instead.'));
+}
+
+function snapPhoto() {
+  const video = document.getElementById('cam-video');
+  const canvas = document.getElementById('snap-canvas');
+  const img    = document.getElementById('snap-img');
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  img.src = canvas.toDataURL();
+  img.style.display = 'block';
+  video.style.display = 'none';
+  stopCamera();
+  document.getElementById('food-desc').focus();
+}
+
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  document.getElementById('cam-controls').style.display = 'none';
+}
+
+function uploadPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('preview-wrap').style.display = 'block';
+    const img = document.getElementById('snap-img');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('cam-video').style.display = 'none';
+    document.getElementById('food-desc').focus();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeFood() {
+  const text     = document.getElementById('food-desc').value.trim();
+  const portions = parseInt(document.getElementById('portions').value) || 1;
+  if (!text) { alert('कृपया तुमचे जेवण describe करा!'); return; }
+  const r = await fetch('/api/scan-food', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({food_text: text, portions})
+  });
+  const d = await r.json();
+  if (d.error) { alert(d.error); return; }
+  document.getElementById('res-total').textContent = d.total_co2;
+  document.getElementById('res-total').style.color = d.total_co2 > 5 ? '#e8604a' : d.total_co2 > 3 ? '#e8a020' : '#2d8a56';
+  let itemsHtml = '';
+  d.matched.forEach(m => {
+    itemsHtml += `<div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size:0.85rem">
+      <span class="text-capitalize">🍽️ ${m.food}</span>
+      <span class="fw-bold">${m.co2} kg CO₂</span></div>`;
+  });
+  document.getElementById('res-items').innerHTML = itemsHtml;
+  document.getElementById('res-tip').textContent = d.tip;
+  document.getElementById('res-vs').innerHTML = `
+    <strong>Carbon comparison:</strong><br/>
+    तुमचे जेवण: ${d.total_co2} kg CO₂<br/>
+    Vegan equivalent: ~0.5 kg CO₂<br/>
+    Difference: <strong style="color:#e8604a">${d.vs_vegan} kg जास्त</strong>`;
+  document.getElementById('result-card').style.display = 'block';
+  document.getElementById('result-card').scrollIntoView({behavior:'smooth'});
+}
+</script>
+{% endblock %}

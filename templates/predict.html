@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}CO₂ Predictor — EcoTrack AI{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">📈</div>
+  <div>
+    <h2 class="fw-bold mb-0">CO₂ Prediction Engine</h2>
+    <p class="text-muted mb-0">Linear Regression ML model — तुमच्या past data वरून future predict करतो</p>
+  </div>
+</div>
+
+{% if not has_data %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">📊</div>
+  <h5 class="fw-bold mt-2">अजून data नाही!</h5>
+  <p class="text-muted">Prediction साठी कमीत कमी 3 दिवस log करणे आवश्यक आहे.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4">Log Today</a>
+</div>
+{% else %}
+
+<!-- Prediction Result Card -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="chart-card text-center h-100">
+      <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:8px">ML Grade</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:5rem;line-height:1;color:{% if result.trend=='improving' %}var(--green-main){% elif result.trend=='worsening' %}#e8604a{% else %}var(--amber){% endif %}">
+        {% if result.trend=='improving' %}↓{% elif result.trend=='worsening' %}↑{% else %}→{% endif %}
+      </div>
+      <div class="fw-bold mt-2" style="color:{% if result.trend=='improving' %}var(--green-main){% elif result.trend=='worsening' %}#e8604a{% else %}var(--amber){% endif %}">
+        {% if result.trend=='improving' %}Improving 📉{% elif result.trend=='worsening' %}Worsening 📈{% else %}Stable ➡️{% endif %}
+      </div>
+      <div class="text-muted mt-1" style="font-size:0.8rem">Confidence: {{ result.confidence }}%</div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="row g-3">
+      <div class="col-6">
+        <div class="stat-card text-center">
+          <div class="stat-card-icon">📅</div>
+          <div class="stat-card-val">{{ result.daily_pred }}</div>
+          <div class="stat-card-label">Predicted daily (kg)</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-card text-center">
+          <div class="stat-card-icon">📆</div>
+          <div class="stat-card-val {% if result.predicted > 210 %}text-danger{% else %}text-success{% endif %}">{{ result.predicted }}</div>
+          <div class="stat-card-label">Next month total (kg)</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-card text-center">
+          <div class="stat-card-icon">📅</div>
+          <div class="stat-card-val text-danger">{{ result.yearly_pred }}</div>
+          <div class="stat-card-label">Yearly projection (kg)</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-card text-center">
+          <div class="stat-card-icon">🌳</div>
+          <div class="stat-card-val text-primary">{{ result.trees_needed }}</div>
+          <div class="stat-card-label">Trees needed/year</div>
+        </div>
+      </div>
+    </div>
+    <div class="eco-note p-3 mt-3">
+      <div style="font-size:0.9rem">{{ result.message }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Trend Chart -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">📊 Actual + Predicted Trend</h5>
+  <canvas id="predChart" height="100"></canvas>
+  <div class="d-flex gap-4 mt-2" style="font-size:0.78rem">
+    <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:3px;background:#2d8a56;display:inline-block;border-radius:2px"></span> Actual data</span>
+    <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:3px;background:#e8a020;display:inline-block;border-radius:2px;border-top:2px dashed #e8a020"></span> Predicted</span>
+  </div>
+</div>
+
+<!-- AI Insight -->
+<div class="chart-card">
+  <h5 class="chart-title">🤖 ML Model Details</h5>
+  <div class="row g-3" style="font-size:0.88rem">
+    <div class="col-md-4">
+      <div class="eco-note p-3">
+        <div class="fw-bold mb-1">Algorithm</div>
+        <div class="text-muted">Linear Regression — तुमच्या emission sequence मध्ये best-fit line काढतो</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="eco-note p-3">
+        <div class="fw-bold mb-1">Features Used</div>
+        <div class="text-muted">Date index, rolling average, day-of-week pattern</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="eco-note p-3">
+        <div class="fw-bold mb-1">Confidence: {{ result.confidence }}%</div>
+        <div class="text-muted">जास्त दिवस log केल्यास accuracy वाढते</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if has_data %}
+<script>
+const labels  = {{ chart_labels|safe }};
+const actual  = {{ chart_actual|safe }};
+const predicted = {{ pred_values|safe }};
+const split   = actual.length;
+
+new Chart(document.getElementById('predChart'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      { label:'Actual', data:actual.concat(new Array(predicted.filter(Boolean).length).fill(null)),
+        borderColor:'#2d8a56', backgroundColor:'rgba(45,138,86,0.1)', tension:0.35, fill:true, pointRadius:3 },
+      { label:'Predicted', data:new Array(split).fill(null).concat(predicted.filter(Boolean)),
+        borderColor:'#e8a020', borderDash:[6,3], backgroundColor:'rgba(232,160,32,0.08)',
+        tension:0.3, fill:true, pointRadius:4, pointBackgroundColor:'#e8a020' }
+    ]
+  },
+  options: {
+    responsive:true,
+    plugins:{ legend:{display:false} },
+    scales:{ y:{ beginAtZero:true, title:{display:true,text:'kg CO₂'} } }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

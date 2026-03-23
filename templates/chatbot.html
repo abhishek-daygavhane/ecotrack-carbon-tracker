@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}EcoBot — AI Carbon Assistant{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">💬</div>
+  <div>
+    <h2 class="fw-bold mb-0">EcoBot — AI Assistant</h2>
+    <p class="text-muted mb-0">Carbon footprint, climate change, green tips — मराठी आणि English मध्ये विचारा!</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="chart-card" style="padding:0;overflow:hidden">
+
+      <!-- Chat Header -->
+      <div style="background:var(--green-dark);padding:1rem 1.25rem;display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🌿</div>
+        <div>
+          <div style="color:#fff;font-weight:700;font-size:0.95rem">EcoBot</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:0.75rem">● Online — ML-powered carbon advisor</div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="chat-messages" style="height:420px;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:12px;background:var(--cream)">
+        <div class="bot-msg">
+          <div class="msg-bubble bot-bubble">
+            नमस्ते {{ user.name }} जी! 🌿 मी EcoBot — तुमचा AI carbon advisor.<br/><br/>
+            मला विचारा:<br/>
+            • माझा carbon कसा कमी करायचा?<br/>
+            • Solar panel subsidy किती आहे?<br/>
+            • Marathwada drought आणि climate change?<br/>
+            • AC efficiently कसा वापरायचा?
+          </div>
+          <div class="msg-time">EcoBot • आत्ता</div>
+        </div>
+      </div>
+
+      <!-- Quick Questions -->
+      <div style="padding:0.75rem 1.25rem;background:var(--cream);border-top:1px solid var(--cream-dark)">
+        <div style="font-size:0.72rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Quick questions:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="quick-q" onclick="sendQuick(this)">Solar panel subsidy</button>
+          <button class="quick-q" onclick="sendQuick(this)">AC कसा वापरायचा</button>
+          <button class="quick-q" onclick="sendQuick(this)">Bus vs car carbon</button>
+          <button class="quick-q" onclick="sendQuick(this)">Meatless Monday</button>
+          <button class="quick-q" onclick="sendQuick(this)">Marathwada drought</button>
+          <button class="quick-q" onclick="sendQuick(this)">My EcoScore means?</button>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div style="padding:1rem 1.25rem;background:var(--paper);border-top:1px solid var(--cream-dark);display:flex;gap:10px">
+        <input type="text" id="chat-input" class="form-control" placeholder="Carbon बद्दल काहीही विचारा... (मराठी / English)" onkeydown="if(event.key==='Enter') sendMsg()"/>
+        <button class="btn btn-eco-primary px-4" onclick="sendMsg()" id="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.msg-bubble { max-width:80%; padding:10px 14px; border-radius:16px; font-size:0.88rem; line-height:1.55; }
+.bot-bubble  { background:var(--paper); border:1px solid var(--cream-dark); color:var(--ink); border-bottom-left-radius:4px; }
+.user-bubble { background:var(--green-main); color:#fff; border-bottom-right-radius:4px; margin-left:auto; }
+.bot-msg     { display:flex; flex-direction:column; align-items:flex-start; }
+.user-msg    { display:flex; flex-direction:column; align-items:flex-end; }
+.msg-time    { font-size:0.68rem; color:var(--ink-faint); margin-top:3px; padding:0 4px; }
+.typing-dots { display:flex; gap:4px; padding:10px 14px; background:var(--paper); border:1px solid var(--cream-dark); border-radius:16px; border-bottom-left-radius:4px; width:fit-content; }
+.typing-dots span { width:7px; height:7px; border-radius:50%; background:var(--ink-faint); animation:bounce .8s infinite; }
+.typing-dots span:nth-child(2) { animation-delay:.15s; }
+.typing-dots span:nth-child(3) { animation-delay:.3s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+.quick-q { background:var(--green-mist); border:1px solid var(--green-pale); color:var(--green-dark); border-radius:20px; padding:4px 12px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all .2s; }
+.quick-q:hover { background:var(--green-pale); transform:translateY(-1px); }
+</style>
+{% endblock %}
+{% block scripts %}
+<script>
+function addMsg(text, sender) {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = sender === 'user' ? 'user-msg' : 'bot-msg';
+  const now = new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+  div.innerHTML = `
+    <div class="msg-bubble ${sender}-bubble">${text.replace(/\n/g,'<br/>')}</div>
+    <div class="msg-time">${sender==='user'?'तुम्ही':'EcoBot'} • ${now}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function showTyping() {
+  const box = document.getElementById('chat-messages');
+  const t = document.createElement('div');
+  t.className = 'bot-msg'; t.id = 'typing';
+  t.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  box.appendChild(t); box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+async function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addMsg(msg, 'user');
+  document.getElementById('send-btn').disabled = true;
+  showTyping();
+  try {
+    const r = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    const d = await r.json();
+    removeTyping();
+    addMsg(d.reply, 'bot');
+  } catch(e) {
+    removeTyping();
+    addMsg('⚠️ Connection error. पुन्हा try करा.', 'bot');
+  }
+  document.getElementById('send-btn').disabled = false;
+  inp.focus();
+}
+
+function sendQuick(btn) {
+  document.getElementById('chat-input').value = btn.textContent;
+  sendMsg();
+}
+</script>
+{% endblock %}

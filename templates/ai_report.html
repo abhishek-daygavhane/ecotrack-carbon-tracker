@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}AI Climate Report — EcoTrack{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">📝</div>
+  <div>
+    <h2 class="fw-bold mb-0">AI Climate Report</h2>
+    <p class="text-muted mb-0">तुमचा complete carbon journey — AI generated monthly analysis</p>
+  </div>
+</div>
+
+{% if not report.available %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">📝</div>
+  <h5 class="fw-bold mt-2">Report साठी data नाही!</h5>
+  <p class="text-muted">कमीत कमी काही दिवस log करा.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4 mt-2">Log Today</a>
+</div>
+{% else %}
+
+<!-- Report Header -->
+<div style="background:var(--green-dark);border-radius:22px;padding:2rem 2.5rem;margin-bottom:1.5rem;color:#fff">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.6);margin-bottom:8px">EcoTrack AI Report • {{ report.month }}</div>
+      <h3 style="font-family:'DM Serif Display',serif;color:#fff;margin-bottom:8px">{{ user.name }} जी, तुमचा Climate Report</h3>
+      <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;margin-bottom:0">{{ report.narrative }}</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <div style="display:inline-block;background:rgba(255,255,255,0.1);border-radius:16px;padding:1.2rem 2rem;border:2px solid {{ report.grade_color }}">
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.6)">Overall Grade</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:3.5rem;color:{{ report.grade_color }};line-height:1">{{ report.grade }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📅</div>
+      <div class="stat-card-val">{{ report.days }}</div>
+      <div class="stat-card-label">Days Tracked</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📊</div>
+      <div class="stat-card-val">{{ report.avg }}</div>
+      <div class="stat-card-label">Daily Avg (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">⬇️</div>
+      <div class="stat-card-val text-success">{{ report.best }}</div>
+      <div class="stat-card-label">Best Day (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🌳</div>
+      <div class="stat-card-val text-primary">{{ report.trees }}</div>
+      <div class="stat-card-label">Trees Equiv.</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">✈️</div>
+      <div class="stat-card-val text-danger">{{ report.flights_eq }}</div>
+      <div class="stat-card-label">Flights Equiv.</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🏅</div>
+      <div class="stat-card-val" style="color:var(--amber)">{{ report.badges_count }}</div>
+      <div class="stat-card-label">Badges</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Monthly Trend Chart -->
+  <div class="col-md-7">
+    <div class="chart-card h-100">
+      <h5 class="chart-title">📈 Monthly Carbon Trend</h5>
+      {% if month_labels != '[]' %}
+        <canvas id="monthChart" height="140"></canvas>
+      {% else %}
+        <div class="empty-chart"><p class="text-muted">अजून monthly data नाही.</p></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Breakdown Donut -->
+  <div class="col-md-5">
+    <div class="chart-card h-100">
+      <h5 class="chart-title">🍕 Emission Sources</h5>
+      <canvas id="breakChart" height="180"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements -->
+{% if report.achievements %}
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🏆 Achievements This Period</h5>
+  <div class="row g-3">
+    {% for ach in report.achievements %}
+    <div class="col-md-4">
+      <div class="badge-card text-center p-3">
+        <div style="font-size:1.5rem">{{ ach.split()[0] }}</div>
+        <div class="fw-bold mt-1" style="font-size:0.85rem">{{ ach }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Category Analysis -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🎯 Category Analysis</h5>
+  <div class="row g-3">
+    {% for cat, val in report.breakdown.items() %}
+    <div class="col-md-3">
+      <div style="background:{% if cat==report.top_category %}var(--amber-light){% else %}var(--green-mist){% endif %};border-radius:12px;padding:1rem;text-align:center;border:1px solid {% if cat==report.top_category %}#f5d89a{% else %}var(--green-pale){% endif %}">
+        <div style="font-size:1.6rem">{% if cat=='transport' %}🚗{% elif cat=='food' %}🍽️{% elif cat=='energy' %}⚡{% else %}🛍️{% endif %}</div>
+        <div class="fw-bold mt-1 text-capitalize">{{ cat }}</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:{% if cat==report.top_category %}#7a4e0a{% else %}var(--green-main){% endif %}">{{ val }} kg</div>
+        <div style="font-size:0.7rem;color:var(--ink-soft)">daily avg</div>
+        {% if cat == report.top_category %}<div style="font-size:0.7rem;color:#7a4e0a;font-weight:700;margin-top:4px">⚠️ Highest — focus here</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Action Plan -->
+<div class="chart-card" style="border-top:3px solid var(--green-mid)">
+  <h5 class="chart-title">🗓️ Next Month Action Plan</h5>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <a href="{{ url_for('chatbot') }}" class="d-block text-decoration-none">
+        <div class="feature-card h-100">
+          <div style="font-size:1.8rem;margin-bottom:8px">💬</div>
+          <div class="fw-bold mb-1">Ask EcoBot</div>
+          <div class="text-muted" style="font-size:0.82rem">{{ report.top_category }} emissions कमी करण्याचे specific tips विचारा</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="{{ url_for('smart_tips') }}" class="d-block text-decoration-none">
+        <div class="feature-card h-100">
+          <div style="font-size:1.8rem;margin-bottom:8px">💡</div>
+          <div class="fw-bold mb-1">Smart Tips</div>
+          <div class="text-muted" style="font-size:0.82rem">तुमच्यासारख्या users साठी personalized recommendations</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="{{ url_for('challenges') }}" class="d-block text-decoration-none">
+        <div class="feature-card h-100">
+          <div style="font-size:1.8rem;margin-bottom:8px">🔥</div>
+          <div class="fw-bold mb-1">30-Day Challenge</div>
+          <div class="text-muted" style="font-size:0.82rem">रोज एक green action — streak build करा next month</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if report.available %}
+<script>
+const monthLabels = {{ month_labels|safe }};
+const monthAvgs   = {{ month_avgs|safe }};
+if (monthLabels.length > 0) {
+  new Chart(document.getElementById('monthChart'), {
+    type:'line',
+    data:{
+      labels:monthLabels,
+      datasets:[{
+        label:'Monthly avg CO₂',
+        data:monthAvgs,
+        borderColor:'#2d8a56', backgroundColor:'rgba(45,138,86,0.12)',
+        tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#2d8a56'
+      }]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'kg CO₂/day'}}}}
+  });
+}
+const bd = {{ report.breakdown|tojson }};
+new Chart(document.getElementById('breakChart'), {
+  type:'doughnut',
+  data:{
+    labels:['Transport','Food','Energy','Shopping'],
+    datasets:[{data:[bd.transport,bd.food,bd.energy,bd.shopping],backgroundColor:['#3a86c8','#2d8a56','#e8a020','#e8604a'],borderWidth:2}]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+</script>
+{% endif %}
+{% endblock %}

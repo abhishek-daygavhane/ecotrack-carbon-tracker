@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Streak Predictor — EcoTrack AI{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🔮</div>
+  <div>
+    <h2 class="fw-bold mb-0">Habit Streak Predictor</h2>
+    <p class="text-muted mb-0">Trend analysis ML — उद्या streak तुटण्याची शक्यता किती?</p>
+  </div>
+</div>
+
+{% if not has_data %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">🔮</div>
+  <h5 class="fw-bold mt-2">कमीत कमी 3 दिवस log करा!</h5>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4 mt-2">Log Today</a>
+</div>
+{% else %}
+
+<!-- Risk Gauge -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="chart-card text-center">
+      <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:12px">Break Probability</div>
+      <div style="position:relative;width:140px;height:140px;margin:0 auto 12px">
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--cream-dark)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="{% if result.risk_level=='high' %}#e8604a{% elif result.risk_level=='medium' %}#e8a020{% else %}#2d8a56{% endif %}"
+            stroke-width="10" stroke-dasharray="314" stroke-dashoffset="{{ 314 - (314 * result.break_probability / 100)|int }}"
+            transform="rotate(-90 60 60)" stroke-linecap="round"/>
+          <text x="60" y="58" text-anchor="middle" font-size="22" font-weight="800" fill="{% if result.risk_level=='high' %}#e8604a{% elif result.risk_level=='medium' %}#e8a020{% else %}#2d8a56{% endif %}">{{ result.break_probability }}%</text>
+          <text x="60" y="74" text-anchor="middle" font-size="10" fill="#6b7a6d">risk</text>
+        </svg>
+      </div>
+      <div class="fw-bold" style="color:{% if result.risk_level=='high' %}#e8604a{% elif result.risk_level=='medium' %}#e8a020{% else %}var(--green-main){% endif %}">
+        {% if result.risk_level=='high' %}High Risk 🚨{% elif result.risk_level=='medium' %}Medium Risk ⚠️{% else %}Low Risk ✅{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="chart-card h-100">
+      <h5 class="chart-title">🔮 Prediction Message</h5>
+      <div class="eco-note p-3 mb-3" style="font-size:0.9rem">{{ result.message }}</div>
+      <div class="row g-2">
+        <div class="col-6">
+          <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Streak Days</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--green-main)">{{ result.streak_days }}</div>
+        </div>
+        <div class="col-6">
+          <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Gaps Found</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:{% if result.gaps_found > 2 %}#e8604a{% else %}var(--green-main){% endif %}">{{ result.gaps_found }}</div>
+        </div>
+      </div>
+      {% if result.tips %}
+      <div class="mt-3">
+        <div style="font-size:0.78rem;font-weight:800;color:var(--green-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Action Steps:</div>
+        {% for tip in result.tips %}
+        <div class="checklist-row p-2 mb-2 d-flex align-items-center gap-2">
+          <span class="checklist-day">💡</span>
+          <span style="font-size:0.85rem">{{ tip }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Heatmap -->
+<div class="chart-card">
+  <h5 class="chart-title">📅 Last 30 Days — Logging Calendar</h5>
+  <div id="cal-grid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:8px"></div>
+  <div class="d-flex gap-4 mt-3" style="font-size:0.75rem">
+    <span><span style="display:inline-block;width:12px;height:12px;background:#2d8a56;border-radius:2px;margin-right:4px"></span>Low CO₂ (&lt;5kg)</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:#e8a020;border-radius:2px;margin-right:4px"></span>Medium (5-10kg)</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:#e8604a;border-radius:2px;margin-right:4px"></span>High (&gt;10kg)</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:var(--cream-dark);border-radius:2px;margin-right:4px"></span>Not logged</span>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if has_data %}
+<script>
+const calDates = {{ cal_dates|safe }};
+const calData  = {{ cal_data|safe }};
+const grid     = document.getElementById('cal-grid');
+calDates.forEach(d => {
+  const cell = document.createElement('div');
+  const val  = calData[d];
+  let bg, title;
+  if (val === undefined) {
+    bg = 'var(--cream-dark)'; title = d + ': not logged';
+  } else if (val < 5) {
+    bg = '#2d8a56'; title = d + ': ' + val + ' kg (low)';
+  } else if (val < 10) {
+    bg = '#e8a020'; title = d + ': ' + val + ' kg';
+  } else {
+    bg = '#e8604a'; title = d + ': ' + val + ' kg (high)';
+  }
+  cell.style.cssText = `width:100%;padding-top:100%;border-radius:3px;background:${bg};cursor:pointer;position:relative`;
+  cell.title = title;
+  grid.appendChild(cell);
+});
+</script>
+{% endif %}
+{% endblock %}

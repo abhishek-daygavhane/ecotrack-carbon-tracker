@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Smart Tips — EcoTrack AI{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">💡</div>
+  <div>
+    <h2 class="fw-bold mb-0">Smart Tip Recommender</h2>
+    <p class="text-muted mb-0">K-Means Clustering — तुमच्यासारख्या users च्या data वरून personalized suggestions</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="chart-card text-center">
+      <div style="font-size:3rem;margin-bottom:8px">👥</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--green-main)">{{ result.similar_users }}</div>
+      <div style="font-size:0.75rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Similar users</div>
+      <div class="text-muted mt-2" style="font-size:0.82rem">तुमच्यासारख्याच emission pattern असलेले</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="chart-card text-center">
+      <div style="font-size:3rem;margin-bottom:8px">📊</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--amber)">{{ result.your_avg }}</div>
+      <div style="font-size:0.75rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Your daily avg (kg)</div>
+      <div class="text-muted mt-2" style="font-size:0.82rem">India avg: 7.0 kg/day</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="chart-card text-center">
+      <div style="font-size:3rem;margin-bottom:8px">🎯</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--green-mid)">{{ result.saving_potential }}</div>
+      <div style="font-size:0.75rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.06em">kg CO₂ save potential/month</div>
+      <div class="text-muted mt-2" style="font-size:0.82rem">If you follow all tips below</div>
+    </div>
+  </div>
+</div>
+
+<div class="chart-card my-4" style="border-left:4px solid var(--green-main)">
+  <h4 class="fw-bold" style="color:var(--green-dark)">{{ result.cluster_info.title }}</h4>
+  <p class="text-muted" style="font-size:0.88rem">तुमच्या {{ result.similar_users }} similar users नी या tips follow केल्या आणि average 38% carbon कमी केला!</p>
+  <div class="row g-3 mt-1">
+    {% for tip in result.cluster_info.tips %}
+    <div class="col-md-6">
+      <div class="tip-card h-100" style="border-left:3px solid var(--green-mid)">
+        <p class="mb-0" style="font-size:0.9rem;line-height:1.6">{{ tip }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="chart-card">
+  <h5 class="chart-title">📊 Your Emission Breakdown</h5>
+  <div class="row g-3 align-items-center">
+    <div class="col-md-4"><canvas id="breakChart" height="200"></canvas></div>
+    <div class="col-md-8">
+      {% for cat, val in result.breakdown.items() %}
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <div style="width:90px;font-size:0.82rem;font-weight:700;text-transform:capitalize">
+          {% if cat=='transport' %}🚗{% elif cat=='food' %}🍽️{% elif cat=='energy' %}⚡{% else %}🛍️{% endif %} {{ cat }}
+        </div>
+        <div class="progress flex-grow-1" style="height:10px">
+          <div class="progress-bar" style="width:{{ [val/result.your_avg*100, 100]|min|int }}%;background:{% if cat=='transport' %}#3a86c8{% elif cat=='food' %}#2d8a56{% elif cat=='energy' %}#e8a020{% else %}#e8604a{% endif %}"></div>
+        </div>
+        <div style="font-size:0.82rem;font-weight:700;min-width:48px;text-align:right">{{ val }} kg</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+new Chart(document.getElementById('breakChart'), {
+  type:'doughnut',
+  data:{
+    labels:['Transport','Food','Energy','Shopping'],
+    datasets:[{
+      data:[{{ result.breakdown.transport }},{{ result.breakdown.food }},{{ result.breakdown.energy }},{{ result.breakdown.shopping }}],
+      backgroundColor:['#3a86c8','#2d8a56','#e8a020','#e8604a'],
+      borderWidth:2
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+</script>
+{% endblock %}

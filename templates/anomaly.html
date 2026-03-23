@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Anomaly Detector — EcoTrack AI{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3">🚨</div>
+  <div>
+    <h2 class="fw-bold mb-0">Anomaly Detector</h2>
+    <p class="text-muted mb-0">Z-Score statistical analysis — carbon spikes automatically detect करतो</p>
+  </div>
+</div>
+
+{% if not has_data %}
+<div class="eco-note p-4 text-center">
+  <div style="font-size:3rem">📊</div>
+  <h5 class="fw-bold mt-2">कमीत कमी 5 दिवस log करा!</h5>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4 mt-2">Log Today</a>
+</div>
+{% else %}
+
+<!-- Status Banner -->
+{% if result.severity == 'high' %}
+<div class="alert" style="background:#fde8e6;border:1px solid #f5c4be;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem">
+  <h5 class="fw-bold" style="color:#7a2018;margin-bottom:6px">🚨 High Anomaly Detected!</h5>
+  <p class="mb-0" style="color:#7a2018;font-size:0.9rem">{{ result.message }}</p>
+</div>
+{% elif result.severity == 'medium' %}
+<div class="alert" style="background:var(--amber-light);border:1px solid #f5d89a;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem">
+  <h5 class="fw-bold" style="color:#7a4e0a;margin-bottom:6px">⚠️ Unusual Activity</h5>
+  <p class="mb-0" style="color:#7a4e0a;font-size:0.9rem">{{ result.message }}</p>
+</div>
+{% elif result.severity == 'positive' %}
+<div class="eco-note p-4 mb-4">
+  <h5 class="fw-bold" style="color:var(--green-dark);margin-bottom:6px">🎉 Positive Anomaly!</h5>
+  <p class="mb-0" style="font-size:0.9rem">{{ result.message }}</p>
+</div>
+{% else %}
+<div class="eco-note p-4 mb-4">
+  <h5 class="fw-bold" style="color:var(--green-dark);margin-bottom:6px">✅ Everything Normal</h5>
+  <p class="mb-0" style="font-size:0.9rem">तुमचा carbon pattern consistent आहे. कोणते anomaly नाही.</p>
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📅</div>
+      <div class="stat-card-val">{{ result.latest }}</div>
+      <div class="stat-card-label">Latest (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📊</div>
+      <div class="stat-card-val">{{ mean }}</div>
+      <div class="stat-card-label">Your mean (kg)</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">📐</div>
+      <div class="stat-card-val {% if result.z_score > 2 %}text-danger{% elif result.z_score > 1.5 %}text-warning{% else %}text-success{% endif %}">{{ result.z_score }}</div>
+      <div class="stat-card-label">Z-Score</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-card-icon">🎯</div>
+      <div class="stat-card-val {% if result.is_anomaly %}text-danger{% else %}text-success{% endif %}">{{ 'YES' if result.is_anomaly else 'NO' }}</div>
+      <div class="stat-card-label">Anomaly?</div>
+    </div>
+  </div>
+</div>
+
+<div class="chart-card mb-4">
+  <h5 class="chart-title">📈 Carbon Timeline — Spikes Highlighted</h5>
+  <canvas id="anomChart" height="110"></canvas>
+  <div class="d-flex gap-4 mt-2" style="font-size:0.78rem">
+    <span><span style="display:inline-block;width:12px;height:12px;background:#2d8a56;border-radius:50%;margin-right:4px"></span>Normal</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:#e8604a;border-radius:50%;margin-right:4px"></span>Anomaly spike</span>
+    <span><span style="display:inline-block;width:16px;height:2px;background:#e8a020;margin-right:4px;vertical-align:middle"></span>Your mean {{ mean }} kg</span>
+  </div>
+</div>
+
+<div class="chart-card">
+  <h5 class="chart-title">🔬 How Z-Score Works</h5>
+  <div class="row g-3" style="font-size:0.85rem">
+    <div class="col-md-4">
+      <div class="eco-note p-3">
+        <div class="fw-bold mb-1">Z-Score &lt; 1.8 ✅</div>
+        <div class="text-muted">Normal — within expected range</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="alert mb-0" style="background:var(--amber-light);border:0;border-radius:10px;padding:.75rem">
+        <div class="fw-bold mb-1">Z-Score 1.8–2.5 ⚠️</div>
+        <div style="color:#7a4e0a;font-size:0.8rem">Moderate anomaly — slightly unusual</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="alert mb-0" style="background:#fde8e6;border:0;border-radius:10px;padding:.75rem">
+        <div class="fw-bold mb-1" style="color:#7a2018">Z-Score &gt; 2.5 🚨</div>
+        <div style="color:#7a2018;font-size:0.8rem">High anomaly — investigate!</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if has_data %}
+<script>
+const labels = {{ chart_labels|safe }};
+const values = {{ chart_values|safe }};
+const colors = {{ chart_colors|safe }};
+const mean   = {{ mean }};
+
+new Chart(document.getElementById('anomChart'), {
+  type:'bar',
+  data:{
+    labels,
+    datasets:[
+      { label:'Daily CO₂', data:values, backgroundColor:colors, borderRadius:4 },
+      { label:'Mean', data:new Array(labels.length).fill(mean),
+        type:'line', borderColor:'#e8a020', borderDash:[5,3], borderWidth:2,
+        pointRadius:0, fill:false }
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'kg CO₂'}}}
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

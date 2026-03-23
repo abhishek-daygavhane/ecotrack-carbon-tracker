@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from functools import wraps
 import json
 
+from ai_engine import (ecobot, predictor, recommender,
+                        anomaly_detector, streak_predictor, report_generator)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'carbon_tracker_hackathon_2024'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carbon_tracker.db'
@@ -807,6 +810,287 @@ def weather_tip():
                         'city': city,
                         'tip': '🌱 Every day is a good day to reduce your carbon footprint!',
                         'icon': '🌍'})
+
+
+# ─────────────────────────────────────────────
+# 🤖 ECOBOT CHATBOT
+# ─────────────────────────────────────────────
+@app.route('/chatbot')
+@login_required
+def chatbot():
+    user = User.query.get(session['user_id'])
+    return render_template('chatbot.html', user=user)
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def api_chat():
+    data    = request.get_json()
+    message = (data.get('message') or '').strip()
+    if not message:
+        return jsonify({'reply': 'कृपया काहीतरी विचारा! 😊'})
+    reply = ecobot.chat(message)
+    return jsonify({'reply': reply, 'timestamp': datetime.now().strftime('%H:%M')})
+
+
+# ─────────────────────────────────────────────
+# 📈 CO2 PREDICTION ENGINE
+# ─────────────────────────────────────────────
+@app.route('/predict')
+@login_required
+def predict():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date).all()
+    result = predictor.predict_next_month(logs)
+
+    # Chart data for last 30 days + prediction line
+    last30 = logs[-30:] if len(logs) >= 30 else logs
+    chart_labels = [str(l.date) for l in last30]
+    chart_actual = [l.total_co2 for l in last30]
+
+    # Extend with 7-day prediction
+    if last30:
+        last_date = last30[-1].date
+        pred_labels = [(last_date + timedelta(days=i+1)).strftime('%m/%d') for i in range(7)]
+        pred_values = [result.get('daily_pred', 0)] * 7
+    else:
+        pred_labels, pred_values = [], []
+
+    return render_template('predict.html',
+        user=user,
+        result=result,
+        chart_labels=json.dumps(chart_labels + pred_labels),
+        chart_actual=json.dumps(chart_actual),
+        pred_values=json.dumps([None]*len(chart_actual) + pred_values),
+        has_data=len(logs) > 0,
+    )
+
+
+# ─────────────────────────────────────────────
+# 💡 SMART TIP RECOMMENDER
+# ─────────────────────────────────────────────
+@app.route('/smart-tips')
+@login_required
+def smart_tips():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date.desc()).limit(30).all()
+    result = recommender.recommend(logs)
+    return render_template('smart_tips.html', user=user, result=result)
+
+
+# ─────────────────────────────────────────────
+# 🚨 ANOMALY DETECTOR
+# ─────────────────────────────────────────────
+@app.route('/anomaly')
+@login_required
+def anomaly():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date).all()
+    result = anomaly_detector.detect(logs)
+
+    # Historical for chart
+    last20 = logs[-20:] if len(logs) > 20 else logs
+    values = [l.total_co2 for l in last20]
+    mean   = round(sum(values)/len(values), 2) if values else 0
+    labels = [str(l.date) for l in last20]
+    colors = []
+    for v in values:
+        if mean > 0 and abs(v - mean) / max(mean, 0.01) > 0.5:
+            colors.append('#e8604a')
+        else:
+            colors.append('#2d8a56')
+
+    return render_template('anomaly.html',
+        user=user,
+        result=result,
+        chart_labels=json.dumps(labels),
+        chart_values=json.dumps(values),
+        chart_colors=json.dumps(colors),
+        mean=mean,
+        has_data=len(logs) >= 5,
+    )
+
+
+# ─────────────────────────────────────────────
+# 🔮 HABIT STREAK PREDICTOR
+# ─────────────────────────────────────────────
+@app.route('/streak')
+@login_required
+def streak():
+    user = User.query.get(session['user_id'])
+    logs = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date).all()
+    result = streak_predictor.predict(logs)
+
+    # Calendar heatmap data (last 30 days)
+    today    = datetime.today().date()
+    cal_data = {}
+    for l in logs[-30:]:
+        cal_data[str(l.date)] = l.total_co2
+    cal_dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(29, -1, -1)]
+
+    return render_template('streak.html',
+        user=user,
+        result=result,
+        cal_dates=json.dumps(cal_dates),
+        cal_data=json.dumps(cal_data),
+        has_data=len(logs) >= 3,
+    )
+
+
+# ─────────────────────────────────────────────
+# 📸 PHOTO CARBON SCANNER
+# ─────────────────────────────────────────────
+FOOD_CARBON_MAP = {
+    'beef':       7.19, 'chicken':    4.67, 'fish':     3.5,
+    'egg':        1.5,  'milk':       1.3,  'cheese':   6.1,
+    'rice':       2.7,  'bread':      1.1,  'dal':      0.9,
+    'vegetable':  0.4,  'fruit':      0.3,  'salad':    0.2,
+    'pizza':      2.8,  'burger':     5.5,  'biryani':  3.2,
+    'roti':       0.5,  'paratha':    0.8,  'idli':     0.3,
+    'dosa':       0.5,  'thali':      2.1,  'vada':     0.6,
+    'paneer':     2.9,  'tofu':       1.1,  'noodles':  1.8,
+    'pasta':      1.6,  'soup':       0.5,  'samosa':   0.8,
+}
+
+@app.route('/photo-scanner')
+@login_required
+def photo_scanner():
+    user = User.query.get(session['user_id'])
+    return render_template('photo_scanner.html', user=user)
+
+@app.route('/api/scan-food', methods=['POST'])
+@login_required
+def api_scan_food():
+    """Analyze food name/description text for carbon estimate"""
+    data       = request.get_json()
+    food_text  = (data.get('food_text') or '').lower().strip()
+    portions   = int(data.get('portions', 1))
+
+    if not food_text:
+        return jsonify({'error': 'कृपया food describe करा'}), 400
+
+    # Match keywords
+    matched  = []
+    total_co2 = 0.0
+    for food, co2 in FOOD_CARBON_MAP.items():
+        if food in food_text:
+            matched.append({'food': food, 'co2': co2})
+            total_co2 += co2
+
+    if not matched:
+        # Default estimate
+        total_co2 = 2.5
+        matched   = [{'food': 'mixed meal', 'co2': 2.5}]
+
+    total_co2 = round(total_co2 * portions, 2)
+    vs_vegan  = round(total_co2 - 0.5 * portions, 2)
+    tip = "🥦 Vegetarian option choose केल्यास आणखी carbon वाचला असता!" if total_co2 > 3 else "✅ Low-carbon meal choice — great job!"
+
+    return jsonify({
+        'total_co2': total_co2,
+        'matched':   matched,
+        'portions':  portions,
+        'vs_vegan':  max(0, vs_vegan),
+        'tip':       tip,
+    })
+
+
+# ─────────────────────────────────────────────
+# 📝 AI CLIMATE REPORT
+# ─────────────────────────────────────────────
+@app.route('/ai-report')
+@login_required
+def ai_report():
+    user   = User.query.get(session['user_id'])
+    logs   = CarbonLog.query.filter_by(user_id=user.id).order_by(CarbonLog.date).all()
+    badges = Badge.query.filter_by(user_id=user.id).all()
+
+    report = report_generator.generate(user, logs, badges)
+
+    # Monthly trend for chart
+    monthly = {}
+    for l in logs:
+        key = l.date.strftime('%b %Y')
+        if key not in monthly:
+            monthly[key] = []
+        monthly[key].append(l.total_co2)
+    month_labels = list(monthly.keys())[-6:]
+    month_avgs   = [round(sum(monthly[k])/len(monthly[k]), 2) for k in month_labels]
+
+    return render_template('ai_report.html',
+        user=user,
+        report=report,
+        month_labels=json.dumps(month_labels),
+        month_avgs=json.dumps(month_avgs),
+    )
+
+
+# ─────────────────────────────────────────────
+# 🎙️ VOICE LOG (Web Speech API — browser-side)
+# ─────────────────────────────────────────────
+@app.route('/voice-log')
+@login_required
+def voice_log():
+    user = User.query.get(session['user_id'])
+    return render_template('voice_log.html', user=user)
+
+@app.route('/api/voice-parse', methods=['POST'])
+@login_required
+def api_voice_parse():
+    """Parse voice transcript to extract carbon log data"""
+    data       = request.get_json()
+    transcript = (data.get('transcript') or '').lower()
+
+    result = {
+        'transport_mode': 'car', 'transport_km': 0,
+        'food_type':      'meat_medium',
+        'electricity_kwh': 0, 'lpg_kg': 0, 'shopping_spend': 0,
+        'detected':       [],
+    }
+
+    # Transport detection
+    km_words = {'km': 1, 'किलोमीटर': 1, 'kilometre': 1}
+    import re
+    numbers = re.findall(r'\d+\.?\d*', transcript)
+    nums    = [float(n) for n in numbers]
+
+    if any(w in transcript for w in ['bus', 'बस', 'pmpml', 'metro', 'मेट्रो']):
+        result['transport_mode'] = 'bus'
+        result['detected'].append('🚌 Bus detected')
+    elif any(w in transcript for w in ['train', 'रेल्वे', 'railway', 'local']):
+        result['transport_mode'] = 'train'
+        result['detected'].append('🚆 Train detected')
+    elif any(w in transcript for w in ['cycle', 'सायकल', 'bicycle', 'walk', 'चालत']):
+        result['transport_mode'] = 'bike'
+        result['detected'].append('🚲 Cycle/Walk detected')
+    elif any(w in transcript for w in ['car', 'गाडी', 'scooter', 'bike', 'taxi']):
+        result['transport_mode'] = 'car'
+        result['detected'].append('🚗 Car detected')
+
+    if nums:
+        result['transport_km'] = nums[0]
+        result['detected'].append(f'📏 {nums[0]} km detected')
+
+    # Food detection
+    if any(w in transcript for w in ['vegan', 'व्हेगन']):
+        result['food_type'] = 'vegan'
+        result['detected'].append('🌱 Vegan diet')
+    elif any(w in transcript for w in ['vegetarian', 'शाकाहारी', 'veg']):
+        result['food_type'] = 'vegetarian'
+        result['detected'].append('🥦 Vegetarian diet')
+    elif any(w in transcript for w in ['chicken', 'meat', 'mutton', 'fish', 'मांस', 'non-veg']):
+        result['food_type'] = 'meat_medium'
+        result['detected'].append('🍗 Non-veg meal')
+
+    # Energy
+    if 'kwh' in transcript or 'unit' in transcript:
+        if len(nums) > 1:
+            result['electricity_kwh'] = nums[1]
+            result['detected'].append(f'⚡ {nums[1]} kWh electricity')
+
+    if not result['detected']:
+        result['detected'].append('❓ काही detect झाले नाही — clearly बोला')
+
+    return jsonify(result)
 
 
 # ─────────────────────────────────────────────
