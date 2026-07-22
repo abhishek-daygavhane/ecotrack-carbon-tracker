@@ -1,33 +1,49 @@
 {% extends 'base.html' %}
-{% block title %}EcoTrack — Track Your Carbon Footprint, Save the Planet{% endblock %}
+{% block title %}GreenSaathi — हरित साथी · Fight Climate Change{% endblock %}
 {% block content %}
 
 <!-- HERO -->
 <section class="hero-section text-center">
-  <div class="row justify-content-center align-items-center">
+  <div class="row justify-content-center align-items-center g-4">
     <div class="col-lg-7 animate-up">
       <div class="hero-eyebrow">
         <span class="dot"></span>
         <span data-lang-key="home.eyebrow">Environmental Awareness Project</span>
       </div>
       <h1 class="hero-title">
-        <span data-lang-key="home.title1">Track Your</span>
-        <span class="accent"> <span data-lang-key="home.title2">Carbon Footprint</span>,</span><br/>
-        <span class="amber" data-lang-key="home.title3">Save the Planet</span>
+        <span data-lang-key="home.title1">Your</span>
+        <span class="accent"> <span data-lang-key="home.title2">Carbon Footprint</span></span><br/>
+        <span class="teal" data-lang-key="home.title3">Tracked. Reduced. Healed.</span>
       </h1>
       <p class="hero-sub" data-lang-key="home.sub">
-        Every person's daily choices matter. Track, reduce, and compete with your community to fight global warming — one day at a time.
+        Daily choices matter. GreenSaathi tracks your carbon, celebrates your wins, and helps you cool the globe — one action at a time.
       </p>
       <div class="d-flex gap-3 justify-content-center flex-wrap">
         <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5" data-lang-key="home.cta">
-          Start Tracking Free
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="16" height="16"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Start Free
         </a>
-        <a href="#how" class="btn btn-lg px-4" style="border:2px solid rgba(26,92,56,0.25);border-radius:14px;font-weight:700;color:var(--green-main)" data-lang-key="home.how">
+        <a href="#how" class="btn btn-lg px-4" style="border:2px solid var(--border-mid);border-radius:var(--r-md);font-weight:700;color:var(--ink-mid)" data-lang-key="home.how">
           How It Works
         </a>
       </div>
+      <!-- Trust badges -->
+      <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap" style="font-size:.75rem;color:var(--ink-soft)">
+        <span style="display:flex;align-items:center;gap:5px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Free forever
+        </span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Marathi + English
+        </span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>AI-powered
+        </span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>India-specific data
+        </span>
+      </div>
     </div>
-    <div class="col-lg-3 d-none d-lg-block animate-up animate-up-delay-2">
+    <div class="col-lg-4 d-none d-lg-block animate-up animate-up-delay-2 text-center">
       <div class="hero-visual">🌍</div>
     </div>
   </div>
@@ -38,11 +54,11 @@
   <div class="row text-center g-3 align-items-center">
     <div class="col-6 col-md-3">
       <div class="stat-strip-num">4.7T</div>
-      <div class="stat-strip-label" data-lang-key="home.stat1">Tonnes CO₂ emitted daily</div>
+      <div class="stat-strip-label" data-lang-key="home.stat1">Tonnes CO₂ daily (India)</div>
     </div>
     <div class="col-6 col-md-3">
       <div class="stat-strip-num">7 kg</div>
-      <div class="stat-strip-label" data-lang-key="home.stat2">Avg daily carbon/person</div>
+      <div class="stat-strip-label" data-lang-key="home.stat2">Avg daily per person</div>
     </div>
     <div class="col-6 col-md-3">
       <div class="stat-strip-num">1.5°C</div>
@@ -50,79 +66,100 @@
     </div>
     <div class="col-6 col-md-3">
       <div class="stat-strip-num">40%</div>
-      <div class="stat-strip-label" data-lang-key="home.stat4">Emissions reducible by lifestyle</div>
+      <div class="stat-strip-label" data-lang-key="home.stat4">Reducible by lifestyle</div>
     </div>
   </div>
 </div>
 
 <!-- FEATURES -->
 <section id="how" class="py-5">
-  <h2 class="text-center mb-2" style="font-size:2.2rem;color:var(--green-dark)" data-lang-key="home.features">How EcoTrack Works</h2>
-  <p class="text-center text-muted mb-5" style="font-size:1rem">Inspired by NVIDIA Earth-2 — bringing climate intelligence to everyday life</p>
+  <div class="text-center mb-5">
+    <h2 style="font-size:2.2rem" data-lang-key="home.features">How GreenSaathi Works</h2>
+    <p class="text-muted" style="font-size:.95rem">Inspired by CoolTheGlobe + NVIDIA Earth-2 — climate intelligence for everyday life</p>
+  </div>
   <div class="row g-4">
     <div class="col-md-3 animate-up animate-up-delay-1">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-green">🧮</div>
+        <div class="ficon ficon-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h5"/></svg>
+        </div>
         <h5 class="fw-bold mb-2" data-lang-key="home.f1title">Log Daily Activity</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f1desc">Enter your transport, food, energy, and shopping habits every day.</p>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f1desc">Transport, food, energy, shopping — log daily and see your exact CO₂ impact.</p>
       </div>
     </div>
     <div class="col-md-3 animate-up animate-up-delay-2">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-sky">📊</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f2title">Track Progress</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f2desc">See weekly and monthly charts showing your carbon reduction over time.</p>
+        <div class="ficon ficon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f2title">Track Used vs Saved</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f2desc">See exactly how much CO₂ you emitted AND how much you saved vs India average.</p>
       </div>
     </div>
     <div class="col-md-3 animate-up animate-up-delay-3">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-amber">💡</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f3title">50+ Green Tips</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f3desc">Personalised suggestions across transport, food, energy, water, waste and more.</p>
+        <div class="ficon ficon-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f4title">One Action a Day</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f4desc">30+ green actions library. Pick one, complete it, earn a badge. Like CoolTheGlobe!</p>
       </div>
     </div>
     <div class="col-md-3 animate-up animate-up-delay-4">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-coral">🔥</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f4title">30-Day Challenge</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f4desc">Take one green action every day. Unlock badges and compete with your city!</p>
+        <div class="ficon ficon-coral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f3title">AI-Powered Insights</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f3desc">EcoBot chatbot, CO₂ predictor, waste analyzer, anomaly detector — 8 AI tools.</p>
       </div>
     </div>
     <div class="col-md-3">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-green">🏆</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f5title">Leaderboard</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f5desc">Compare with friends and cities. See who's making the most difference.</p>
+        <div class="ficon ficon-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f6title">Global Impact</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f6desc">See total community CO₂ avoided. Your action + others = massive collective change.</p>
       </div>
     </div>
     <div class="col-md-3">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-sky">🌍</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f6title">Climate Awareness</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f6desc">Learn key climate facts, India's context, and what you can do at every level.</p>
+        <div class="ficon ficon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f5title">Climate Videos</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f5desc">NASA, TED, BBC climate videos. Learn why +1.5°C matters for Marathwada.</p>
       </div>
     </div>
     <div class="col-md-3">
       <div class="feature-card">
-        <div class="feature-icon-wrap ficon-amber">🏅</div>
+        <div class="ficon ficon-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        </div>
+        <h5 class="fw-bold mb-2" data-lang-key="home.f8title">Waste Analyzer</h5>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f8desc">Photo काढा → AI सांगेल proper disposal. Burning plastic = illegal + harmful!</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="feature-card">
+        <div class="ficon ficon-coral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+        </div>
         <h5 class="fw-bold mb-2" data-lang-key="home.f7title">Earn Badges</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f7desc">Get rewarded for green milestones — Green Day, Week Warrior, Carbon Zero Hero!</p>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="feature-card">
-        <div class="feature-icon-wrap ficon-coral">🪞</div>
-        <h5 class="fw-bold mb-2" data-lang-key="home.f8title">Carbon Twin</h5>
-        <p class="text-muted mb-0" style="font-size:0.88rem" data-lang-key="home.f8desc">See how many trees' worth of CO₂ you've saved vs the India average.</p>
+        <p class="text-muted mb-0" style="font-size:.85rem" data-lang-key="home.f7desc">Green Day, Week Warrior, Carbon Zero Hero — milestones that feel rewarding.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<div class="text-center py-5 my-3" style="background:linear-gradient(135deg,var(--green-mist),var(--cream));border-radius:var(--radius-xl);padding:3rem!important">
-  <h2 style="font-size:2rem;color:var(--green-dark)" data-lang-key="home.cta2title">Ready to make a difference?</h2>
-  <p class="text-muted mb-4" data-lang-key="home.cta2sub">Join EcoTrack and take your first step towards a sustainable future.</p>
-  <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5" data-lang-key="home.cta2btn">Join EcoTrack Now</a>
+<div class="text-center py-5 px-4 mb-2" style="background:linear-gradient(135deg,var(--green-mist),var(--teal-pale));border-radius:var(--r-xl)">
+  <h2 style="font-size:2rem;color:var(--forest)" data-lang-key="home.cta2title">Ready to make a difference?</h2>
+  <p class="text-muted mb-4" data-lang-key="home.cta2sub">Join GreenSaathi and take your first step towards a sustainable future.</p>
+  <a href="{{ url_for('register') }}" class="btn btn-eco-primary btn-lg px-5" data-lang-key="home.cta2btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="16" height="16"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Join GreenSaathi Free
+  </a>
 </div>
 {% endblock %}

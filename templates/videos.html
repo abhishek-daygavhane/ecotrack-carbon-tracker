@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Climate Videos — GreenSaathi{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center mb-4">
+  <div class="page-icon me-3"><svg viewBox="0 0 24 24" fill="none"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+  <div>
+    <h2 style="margin-bottom:2px">Climate Videos</h2>
+    <p style="color:var(--ink-soft);font-size:.84rem;margin:0">Watch → Learn → Act. Climate action starts with awareness.</p>
+  </div>
+</div>
+
+<!-- Featured embed — loads only when clicked -->
+<div class="chart-card mb-4" style="padding:0;overflow:hidden">
+  <div id="featured-area" style="background:#000;border-radius:var(--r-lg) var(--r-lg) 0 0;min-height:260px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden" onclick="loadFeatured()">
+    <img id="featured-thumb" src="https://img.youtube.com/vi/dkh375PZRAM/hqdefault.jpg" alt="Climate Change Video" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:.6"/>
+    <div style="position:relative;z-index:2;text-align:center">
+      <div style="width:60px;height:60px;background:rgba(34,197,94,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="24" height="24"><polygon points="5 3 19 12 5 21 5 3" fill="white"/></svg>
+      </div>
+      <div style="color:#fff;font-weight:700;font-size:1rem" id="featured-title-text">What is Climate Change? — NASA</div>
+      <div style="color:rgba(255,255,255,.65);font-size:.8rem;margin-top:4px">Click to play</div>
+    </div>
+  </div>
+  <div id="featured-iframe-wrap" style="display:none">
+    <iframe id="featured-iframe" width="100%" height="340" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="display:block"></iframe>
+  </div>
+  <div style="padding:1rem 1.25rem">
+    <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:3px" id="featured-src">NASA</div>
+    <div style="font-size:.95rem;font-weight:700;color:#fff" id="featured-title">What is Climate Change?</div>
+    <p style="font-size:.82rem;color:var(--ink-soft);margin:.3rem 0 0" id="featured-desc">NASA explains climate change — causes, effects, and what we can do. Simple, accurate, essential.</p>
+  </div>
+</div>
+
+<!-- Video Grid -->
+<div class="row g-3 mb-4">
+  {% set vids = [
+    {"id":"G4H1N_yXBiA","title":"Our House is on Fire","source":"TED","duration":"11:11","desc":"Greta Thunberg at Davos — the most powerful climate speech of our time."},
+    {"id":"EzgFRFBP7GE","title":"India's Climate Crisis","source":"DW Documentary","duration":"12:43","desc":"How climate change hits India — Marathwada droughts, Kerala floods, Himalayan melt."},
+    {"id":"ipVR0W_jHUQ","title":"How Trees Fight Climate Change","source":"BBC Earth","duration":"4:22","desc":"Why planting trees is one of the best things you can do for the planet."},
+    {"id":"3NkpKR93HrA","title":"Can Individuals Stop Climate Change?","source":"TED","duration":"8:55","desc":"Honest answer: individual action + systemic change. Both matter. Here's why."},
+    {"id":"d5TGT7ebl_Q","title":"Reduce Your Carbon Footprint","source":"United Nations","duration":"2:14","desc":"Simple, practical daily actions from the UN. Exactly what GreenSaathi tracks."},
+  ] %}
+  {% for v in vids %}
+  <div class="col-md-6 col-lg-4">
+    <div class="video-card" onclick="playVideo('{{ v.id }}','{{ v.title }}','{{ v.source }}','{{ v.desc }}')">
+      <div class="video-thumb">
+        <img src="https://img.youtube.com/vi/{{ v.id }}/mqdefault.jpg" alt="{{ v.title }}" loading="lazy"/>
+        <div class="play-overlay">
+          <div class="play-btn"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="20" height="20"><polygon points="5 3 19 12 5 21 5 3" fill="white"/></svg></div>
+        </div>
+        <div class="video-duration">{{ v.duration }}</div>
+      </div>
+      <div class="video-info">
+        <div class="video-source">{{ v.source }}</div>
+        <div class="video-title">{{ v.title }}</div>
+        <div class="video-desc">{{ v.desc[:90] }}{% if v.desc|length > 90 %}...{% endif %}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Rotating Fact -->
+<div class="facts-ticker mb-4">
+  <div class="ticker-label">Climate Fact</div>
+  <div id="ticker-text" style="font-size:.85rem;color:var(--ink-mid);transition:opacity .4s">Loading...</div>
+</div>
+
+<!-- Temperature Impact — clean table -->
+<div class="chart-card mb-4">
+  <div class="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>Why Every Degree Matters</div>
+  <div class="row g-2">
+    {% for temp,color,status,effect in [
+      ('+1.1°C','var(--green)','Now (current)','Marathwada drought worsens · Heatwaves more frequent · Glaciers retreating'),
+      ('+1.5°C','var(--amber)','Paris target limit','Mumbai coastal areas at risk · 120M more in poverty · Coral reefs gone'),
+      ('+2°C','var(--coral)','Danger zone','Monsoons severely disrupted · India crop failure · Sea level +0.5m'),
+      ('+4°C','#f87171','Catastrophic','Uninhabitable regions in India · Himalayan glaciers vanished · Mass extinction'),
+    ] %}
+    <div class="col-12">
+      <div style="background:rgba(255,255,255,.03);border-radius:var(--r-md);padding:.75rem 1rem;border-left:3px solid {{ color }};display:flex;align-items:center;gap:1rem">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:{{ color }};min-width:70px">{{ temp }}</div>
+        <div>
+          <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:{{ color }}">{{ status }}</div>
+          <div style="font-size:.8rem;color:var(--ink-mid);margin-top:1px">{{ effect }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="eco-note p-4 text-center">
+  <div style="font-size:.9rem;font-weight:700;color:var(--green);margin-bottom:.5rem">🎬 Videos बघितल्यानंतर action घ्या!</div>
+  <div class="d-flex gap-3 justify-content-center flex-wrap mt-2">
+    <a href="{{ url_for('action_library') }}" class="btn btn-eco-primary btn-sm px-4">Take an Action</a>
+    <a href="{{ url_for('calculate') }}" class="btn btn-eco-teal btn-sm px-4">Log Today's Carbon</a>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const currentFeaturedId = 'dkh375PZRAM';
+
+function loadFeatured() {
+  document.getElementById('featured-area').style.display = 'none';
+  const wrap = document.getElementById('featured-iframe-wrap');
+  wrap.style.display = 'block';
+  document.getElementById('featured-iframe').src = `https://www.youtube-nocookie.com/embed/${currentFeaturedId}?autoplay=1&rel=0&modestbranding=1`;
+}
+
+function playVideo(id, title, src, desc) {
+  document.getElementById('featured-area').style.display = 'none';
+  const wrap = document.getElementById('featured-iframe-wrap');
+  wrap.style.display = 'block';
+  document.getElementById('featured-iframe').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+  document.getElementById('featured-title').textContent = title;
+  document.getElementById('featured-src').textContent = src;
+  document.getElementById('featured-desc').textContent = desc;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+const FACTS = [
+  "Earth is already 1.1°C warmer than 1850 — target is 1.5°C.",
+  "India is 3rd largest CO₂ emitter but per-capita is 1/8th of USA.",
+  "One Mumbai-Delhi flight = 300 kg CO₂. Train same route = 12 kg.",
+  "Marathwada has faced drought in 6 of last 10 years.",
+  "1 kg plastic burned = 2.9 kg CO₂ + toxic dioxins.",
+  "One tree absorbs 22 kg CO₂ per year. Plant native species.",
+  "Solar costs fell 90% in 10 years — now cheaper than coal in India.",
+  "40% of emissions reducible through individual lifestyle changes.",
+];
+let fi = 0;
+const el = document.getElementById('ticker-text');
+el.style.transition = 'opacity .4s';
+function nextFact() {
+  el.style.opacity = 0;
+  setTimeout(() => { el.textContent = FACTS[fi++ % FACTS.length]; el.style.opacity = 1; }, 400);
+}
+nextFact(); setInterval(nextFact, 5000);
+</script>
+{% endblock %}

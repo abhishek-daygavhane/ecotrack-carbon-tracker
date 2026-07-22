@@ -1,50 +1,117 @@
 {% extends 'base.html' %}
-{% block title %}What-If Simulator — EcoTrack{% endblock %}
-
+{% block title %}What-If Simulator — GreenSaathi{% endblock %}
 {% block content %}
 <div class="d-flex align-items-center mb-4">
   <div class="page-icon me-3">🔭</div>
   <div>
     <h2 class="fw-bold mb-0">What-If Simulator</h2>
-    <p class="text-muted mb-0">See how small lifestyle changes create massive collective impact</p>
+    <p class="text-muted mb-0">Sliders adjust करा — real-time मध्ये impact पहा</p>
   </div>
 </div>
 
 {% if not has_data %}
-<div class="eco-note p-4 text-center">
-  <div style="font-size:3rem">📊</div>
-  <h5 class="fw-bold mt-2">Log some days first!</h5>
-  <p class="text-muted">The simulator uses your real emission data for accurate projections.</p>
-  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary px-4">Log Today's Activity</a>
+<div class="eco-note p-5 text-center">
+  <div style="font-size:4rem;margin-bottom:1rem">📊</div>
+  <h4 class="fw-bold" style="color:var(--green-dark)">Simulation साठी data नाही!</h4>
+  <p class="text-muted mb-4">कमीत कमी 3 दिवस log करा accurate simulation साठी.</p>
+  <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary btn-lg px-5">Log Today</a>
 </div>
 {% else %}
 
-<!-- Your current baseline -->
+<!-- Current Baseline -->
 <div class="sim-baseline mb-4">
-  <div class="row align-items-center">
+  <div class="row align-items-center g-3">
     <div class="col-md-6">
-      <h5 class="fw-bold mb-1">Your current daily average: <span class="text-danger">{{ avg_total }} kg CO₂</span></h5>
-      <p class="text-muted mb-0">At this rate, you emit <strong>{{ yearly_current }} kg CO₂ per year</strong></p>
+      <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:4px">तुमचा सध्याचा daily average</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:2.8rem;color:#e8604a;line-height:1">{{ avg_total }} <span style="font-size:1.2rem">kg CO₂/day</span></div>
+      <div class="text-muted" style="font-size:0.85rem">= {{ yearly_current }} kg/year = {{ (yearly_current/22)|round(1) }} trees needed to offset</div>
     </div>
     <div class="col-md-6">
-      <canvas id="currentBar" height="60"></canvas>
+      <canvas id="baselineChart" height="70"></canvas>
     </div>
   </div>
 </div>
 
-<!-- Scenario Cards -->
-<h5 class="fw-bold mb-3">🌟 Pick a Scenario — See Your Impact</h5>
-<div class="row g-3 mb-4" id="scenario-cards">
-  {% set scenarios_list = scenarios_list %}
+<!-- LIVE SIMULATOR -->
+<div class="chart-card mb-4">
+  <h5 class="chart-title">⚡ Live What-If Simulator</h5>
+  <p class="text-muted" style="font-size:0.86rem">खालील sliders adjust करा → right side वर real-time result पहा</p>
+
+  <div class="row g-4">
+    <!-- Sliders -->
+    <div class="col-md-6">
+
+      <div class="mb-4">
+        <label class="form-label">🚗 Transport emissions reduce by <span id="t-pct" style="color:var(--green-main);font-weight:800">0%</span></label>
+        <input type="range" id="sl-t" min="0" max="100" value="0" step="5" class="form-range" oninput="updateSim()"/>
+        <div class="d-flex justify-content-between" style="font-size:0.72rem;color:var(--ink-soft)">
+          <span>No change</span><span>Bus/cycle every day</span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">🍽️ Switch diet to</label>
+        <select id="sl-diet" class="form-select" onchange="updateSim()">
+          <option value="{{ avg_food }}">Current diet ({{ avg_food }} kg/day)</option>
+          <option value="4.67">Some Meat (4.67 kg/day)</option>
+          <option value="3.81">Vegetarian (3.81 kg/day)</option>
+          <option value="2.89">Vegan (2.89 kg/day)</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">⚡ Energy usage reduce by <span id="e-pct" style="color:var(--amber);font-weight:800">0%</span></label>
+        <input type="range" id="sl-e" min="0" max="80" value="0" step="5" class="form-range" oninput="updateSim()"/>
+        <div class="d-flex justify-content-between" style="font-size:0.72rem;color:var(--ink-soft)">
+          <span>No change</span><span>Solar + LED + no AC</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">🛍️ Shopping reduce by <span id="s-pct" style="color:#e8604a;font-weight:800">0%</span></label>
+        <input type="range" id="sl-s" min="0" max="80" value="0" step="5" class="form-range" oninput="updateSim()"/>
+        <div class="d-flex justify-content-between" style="font-size:0.72rem;color:var(--ink-soft)">
+          <span>No change</span><span>Minimal + second-hand</span>
+        </div>
+      </div>
+
+      <button class="btn btn-eco-primary w-100" onclick="resetSim()">🔄 Reset to Current</button>
+    </div>
+
+    <!-- Live Results -->
+    <div class="col-md-6">
+      <div style="background:var(--green-dark);border-radius:18px;padding:1.75rem;color:#fff;text-align:center">
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.55);margin-bottom:8px">With your changes</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:3.5rem;line-height:1" id="new-daily">{{ avg_total }}</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.65);margin-bottom:16px">kg CO₂ per day</div>
+
+        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:12px">
+          <div id="yearly-new" style="font-size:1.8rem;font-weight:800;color:#fff">{{ yearly_current }} kg/year</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Annual projection</div>
+        </div>
+
+        <div id="saving-box" style="display:none;background:rgba(77,184,122,0.2);border:1px solid rgba(77,184,122,0.4);border-radius:10px;padding:.75rem;margin-bottom:12px">
+          <div id="saving-val" style="font-size:1.4rem;font-weight:800;color:#4db87a"></div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">kg CO₂ saved per year</div>
+        </div>
+
+        <div id="trees-box" style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-top:8px"></div>
+
+        <canvas id="simBarChart" height="120" style="margin-top:1rem"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scenarios -->
+<h5 class="fw-bold mb-3">🌟 Pre-built Scenarios</h5>
+<div class="row g-3 mb-4">
   {% for sc in scenarios_list %}
   <div class="col-md-6">
-    <div class="scenario-card {% if sc.saving > 0 %}scenario-positive{% endif %}"
-         onclick="highlightScenario({{ loop.index0 }})">
+    <div class="scenario-card {% if sc.saving > 0 %}scenario-positive{% endif %}" onclick="applyScenario({{ loop.index0 }})">
       <div class="d-flex justify-content-between align-items-start mb-2">
-        <h6 class="fw-bold mb-0">{{ sc.name }}</h6>
-        <span class="scenario-saving-badge">
-          {% if sc.saving > 0 %}-{{ sc.saving }} kg/yr{% else %}+{{ sc.saving|abs }} kg/yr{% endif %}
-        </span>
+        <h6 class="fw-bold mb-0" style="font-size:0.92rem">{{ sc.name }}</h6>
+        <span class="scenario-saving-badge">{% if sc.saving > 0 %}-{{ sc.saving }} kg/yr{% else %}+{{ sc.saving|abs }} kg/yr{% endif %}</span>
       </div>
       <div class="row g-2 text-center">
         <div class="col-4">
@@ -65,36 +132,27 @@
   {% endfor %}
 </div>
 
-<!-- Main comparison chart -->
-<div class="chart-card mb-4">
-  <h5 class="chart-title">📊 Yearly CO₂ Comparison</h5>
-  <canvas id="compChart" height="120"></canvas>
-</div>
-
-<!-- City-scale impact -->
-<div class="chart-card mb-4">
-  <h5 class="chart-title">🏙️ If Your Whole City Did This...</h5>
-  <p class="text-muted" style="font-size:0.85rem">Collective impact if everyone in your city adopted these changes:</p>
-
-  {% set city_populations = {
-    'Mumbai': 20700000, 'Pune': 7400000, 'Nagpur': 2900000,
-    'Nashik': 1560000, 'Aurangabad': 1400000, 'Solapur': 960000,
-  } %}
-  {% set city_pop = city_populations.get(user.city, 1000000) %}
-
+<!-- City scale -->
+<div class="chart-card">
+  <h5 class="chart-title">🏙️ If All of {{ user.city }} Did This...</h5>
+  <div class="eco-note p-3 mb-3" style="font-size:0.85rem">
+    Collective impact calculation — तुमच्या city च्या population ने हे केल्यास:
+  </div>
+  {% set city_pops = {'Pune':7400000,'Mumbai':20700000,'Nagpur':2900000,'Nashik':1560000,'Aurangabad':1400000,'Solapur':960000} %}
+  {% set pop = city_pops.get(user.city, 1000000) %}
   <div class="row g-3">
     {% for sc in scenarios_list %}
     {% if sc.saving > 0 %}
     <div class="col-md-6">
       <div class="city-impact-card">
-        <div class="fw-bold">{{ sc.name }}</div>
-        <div class="d-flex justify-content-between mt-2" style="font-size:0.85rem">
+        <div class="fw-bold mb-2" style="font-size:0.88rem">{{ sc.name }}</div>
+        <div class="d-flex justify-content-between" style="font-size:0.82rem">
           <span class="text-muted">{{ user.city }} saves:</span>
-          <span class="fw-bold text-success">{{ (sc.saving * city_pop / 1e6)|round(1) }}M kg CO₂/year</span>
+          <span class="fw-bold text-success">{{ (sc.saving * pop / 1e9)|round(2) }} Billion kg CO₂/yr</span>
         </div>
-        <div class="d-flex justify-content-between" style="font-size:0.85rem">
-          <span class="text-muted">= Trees planted:</span>
-          <span class="fw-bold text-primary">{{ (sc.saving * city_pop / 22 / 1e6)|round(1) }}M trees</span>
+        <div class="d-flex justify-content-between" style="font-size:0.82rem">
+          <span class="text-muted">Trees equivalent:</span>
+          <span class="fw-bold text-primary">{{ (sc.saving * pop / 22 / 1e6)|round(1) }}M trees</span>
         </div>
       </div>
     </div>
@@ -103,55 +161,93 @@
   </div>
 </div>
 
-<!-- Call to action -->
-<div class="eco-note p-4 text-center">
-  <h5 class="fw-bold">🌍 Ready to Make a Change?</h5>
-  <p class="text-muted mb-3">Choose the scenario that fits you best and commit to it this week.</p>
-  <div class="d-flex gap-3 justify-content-center flex-wrap">
-    <a href="{{ url_for('pledge') }}"   class="btn btn-eco-primary px-4">🤝 Make a Pledge</a>
-    <a href="{{ url_for('tips') }}"     class="btn btn-outline-success px-4">💡 See All Tips</a>
-    <a href="{{ url_for('challenges') }}" class="btn btn-outline-secondary px-4">🔥 Start 30-Day Challenge</a>
-  </div>
-</div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
 {% if has_data %}
 <script>
-const scenarios = {{ scenarios|safe }};
+const avgT = {{ avg_transport }}, avgF = {{ avg_food }}, avgE = {{ avg_energy }}, avgS = {{ avg_shopping }};
 const currentYearly = {{ yearly_current }};
+const avgTotal = {{ avg_total }};
+let barChart = null;
 
-new Chart(document.getElementById('currentBar'), {
+// Baseline donut
+new Chart(document.getElementById('baselineChart'), {
   type: 'bar',
   data: {
-    labels: ['Your annual CO₂'],
-    datasets: [{ data: [currentYearly], backgroundColor: '#e76f51', borderRadius: 6 }]
+    labels: ['Transport','Food','Energy','Shopping'],
+    datasets: [{ data: [avgT, avgF, avgE, avgS], backgroundColor: ['#3a86c8','#2d8a56','#e8a020','#e8604a'], borderRadius: 4 }]
   },
-  options: { responsive:true, indexAxis:'y', plugins:{legend:{display:false}},
-             scales:{x:{title:{display:true, text:'kg CO₂/year'}}} }
+  options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
 });
 
-new Chart(document.getElementById('compChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Current', ...scenarios.map(s => s.name)],
-    datasets: [{
-      data: [currentYearly, ...scenarios.map(s => s.yearly)],
-      backgroundColor: ['#e76f51', ...scenarios.map(s => s.saving > 0 ? '#2d9e5f':'#f4a261')],
-      borderRadius: 6,
-    }]
-  },
-  options: { responsive:true, plugins:{legend:{display:false}},
-             scales:{y:{beginAtZero:true, title:{display:true, text:'kg CO₂/year'}}} }
-});
+function updateSim() {
+  const tR = parseFloat(document.getElementById('sl-t').value) / 100;
+  const eR = parseFloat(document.getElementById('sl-e').value) / 100;
+  const sR = parseFloat(document.getElementById('sl-s').value) / 100;
+  const fV = parseFloat(document.getElementById('sl-diet').value);
 
-function highlightScenario(idx) {
-  document.querySelectorAll('.scenario-card').forEach((c,i) => {
-    c.style.transform = i===idx ? 'scale(1.02)' : '';
-    c.style.boxShadow = i===idx ? '0 4px 20px rgba(45,158,95,0.3)' : '';
+  document.getElementById('t-pct').textContent = Math.round(tR*100) + '%';
+  document.getElementById('e-pct').textContent = Math.round(eR*100) + '%';
+  document.getElementById('s-pct').textContent = Math.round(sR*100) + '%';
+
+  const newDaily  = +(avgT*(1-tR) + fV + avgE*(1-eR) + avgS*(1-sR)).toFixed(2);
+  const newYearly = Math.round(newDaily * 365 * 10) / 10;
+  const saving    = Math.round((currentYearly - newYearly) * 10) / 10;
+  const trees     = Math.round(saving / 22 * 10) / 10;
+
+  const col = newDaily < avgTotal ? '#4db87a' : (newDaily > avgTotal ? '#e8604a' : '#fff');
+  document.getElementById('new-daily').textContent = newDaily;
+  document.getElementById('new-daily').style.color = col;
+  document.getElementById('yearly-new').textContent = newYearly + ' kg/year';
+
+  if (saving > 0) {
+    document.getElementById('saving-box').style.display = 'block';
+    document.getElementById('saving-val').textContent = '🎉 Save ' + saving + ' kg CO₂';
+    document.getElementById('trees-box').textContent = 'Equivalent to ' + trees + ' trees planted!';
+  } else if (saving < 0) {
+    document.getElementById('saving-box').style.display = 'block';
+    document.getElementById('saving-val').textContent = '⚠️ +' + Math.abs(saving) + ' kg MORE';
+    document.getElementById('saving-val').style.color = '#e8604a';
+    document.getElementById('trees-box').textContent = '';
+  } else {
+    document.getElementById('saving-box').style.display = 'none';
+    document.getElementById('trees-box').textContent = '';
+  }
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('simBarChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Current','With Changes'],
+      datasets: [{ data: [currentYearly, newYearly], backgroundColor: ['rgba(255,255,255,0.25)', col === '#4db87a' ? '#4db87a' : '#e8604a'], borderRadius: 6 }]
+    },
+    options: {
+      responsive: true, plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.6)' } }, x: { ticks: { color: 'rgba(255,255,255,0.6)' } }, grid: { color: 'rgba(255,255,255,0.1)' } }
+    }
   });
 }
+
+function resetSim() {
+  document.getElementById('sl-t').value = 0;
+  document.getElementById('sl-e').value = 0;
+  document.getElementById('sl-s').value = 0;
+  document.getElementById('sl-diet').value = avgF;
+  updateSim();
+}
+
+const scenarioData = {{ scenarios|safe }};
+function applyScenario(idx) {
+  const sc = scenarioData[idx];
+  document.querySelectorAll('.scenario-card').forEach((c,i) => {
+    c.style.transform = i===idx ? 'scale(1.02)' : '';
+    c.style.boxShadow = i===idx ? '0 4px 20px rgba(45,138,86,0.25)' : '';
+  });
+}
+
+updateSim();
 </script>
 {% endif %}
 {% endblock %}

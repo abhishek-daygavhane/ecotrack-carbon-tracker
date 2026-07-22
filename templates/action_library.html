@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Action Library — GreenSaathi{% endblock %}
+
+{% block content %}
+<!-- Animated Earth Header -->
+<div class="action-hero mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-7">
+      <div class="hero-eyebrow mb-2"><span class="dot"></span> CoolTheGlobe Inspired</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--green-dark);line-height:1.2">
+        Take <span style="color:var(--green-mid);font-style:italic">One Action</span> Today.<br/>
+        Cool the Globe. 🌍
+      </h2>
+      <p class="text-muted mb-3" style="font-size:0.95rem">प्रत्येक action CO₂ avoid करतो. Choose one, complete it, log it!</p>
+      <div class="d-flex gap-3 flex-wrap">
+        <div class="action-hero-stat">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--green-main)">{{ logs_count }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Days tracked</div>
+        </div>
+        <div class="action-hero-stat">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--amber)">{{ badges_count }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Actions done</div>
+        </div>
+        <div class="action-hero-stat">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--green-mid)">{{ total_users }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Global users</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 text-center d-none d-md-block">
+      <!-- Animated Earth SVG -->
+      <div class="earth-wrap">
+        <svg viewBox="0 0 200 200" width="200" height="200" class="earth-svg">
+          <circle cx="100" cy="100" r="90" fill="#2d8a56" opacity="0.15"/>
+          <circle cx="100" cy="100" r="80" fill="#1a5c38" opacity="0.2"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#2d8a56" stroke-width="1" stroke-dasharray="4 4"/>
+          <text x="100" y="115" text-anchor="middle" font-size="60">🌍</text>
+          <!-- Orbiting elements -->
+          <g class="orbit-1"><circle cx="100" cy="18" r="8" fill="#e8a020" opacity="0.8"/><text x="100" y="22" text-anchor="middle" font-size="10">🌱</text></g>
+          <g class="orbit-2"><circle cx="182" cy="100" r="8" fill="#2d8a56" opacity="0.8"/><text x="182" y="104" text-anchor="middle" font-size="10">☀️</text></g>
+          <g class="orbit-3"><circle cx="100" cy="182" r="8" fill="#3a86c8" opacity="0.8"/><text x="100" y="186" text-anchor="middle" font-size="10">💧</text></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Global avoided counter -->
+<div class="global-counter-bar mb-4">
+  <div class="row g-0 text-center">
+    <div class="col-4 border-end" style="border-color:rgba(255,255,255,0.15)!important;padding:1rem">
+      <div class="counter-num" id="global-co2">{{ global_avoided|int }}</div>
+      <div class="counter-label">kg CO₂ avoided globally</div>
+    </div>
+    <div class="col-4 border-end" style="border-color:rgba(255,255,255,0.15)!important;padding:1rem">
+      <div class="counter-num">{{ (global_avoided / 22)|int }}</div>
+      <div class="counter-label">trees equivalent</div>
+    </div>
+    <div class="col-4" style="padding:1rem">
+      <div class="counter-num">{{ total_users }}</div>
+      <div class="counter-label">users taking action</div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Filter -->
+<div class="d-flex gap-2 flex-wrap mb-4">
+  <button class="btn-filter active" onclick="filterActions('all',this)">🌍 All Actions</button>
+  <button class="btn-filter" onclick="filterActions('travel',this)">🚗 Travel</button>
+  <button class="btn-filter" onclick="filterActions('food',this)">🍽️ Food</button>
+  <button class="btn-filter" onclick="filterActions('energy',this)">⚡ Energy</button>
+  <button class="btn-filter" onclick="filterActions('waste',this)">♻️ Waste</button>
+  <button class="btn-filter" onclick="filterActions('nature',this)">🌳 Nature</button>
+  <button class="btn-filter" style="border-color:#e8604a;color:#e8604a" onclick="filterImpact('High',this)">🔴 High Impact</button>
+</div>
+
+<!-- Action Cards Grid -->
+<div class="row g-3" id="actions-grid">
+  {% for action in actions %}
+  <div class="col-6 col-md-4 col-lg-3 action-item" data-cat="{{ action.cat }}" data-impact="{{ action.impact }}">
+    <div class="action-card" id="card-{{ action.id }}">
+      <div class="action-card-icon">{{ action.icon }}</div>
+      <div class="action-card-title">{{ action.title }}</div>
+      <div class="action-card-marathi">{{ action.marathi }}</div>
+      {% if action.brief is defined %}<div class="action-card-impact">{{ action.brief[:80] }}...</div>{% endif %}
+      <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+        <span class="action-co2">-{{ action.co2_avoided }} kg CO₂</span>
+        <span class="impact-badge impact-{{ action.impact|lower }}">{{ action.impact }}</span>
+      </div>
+      <div class="action-diff diff-{{ action.difficulty|lower }}">{{ action.difficulty }}</div>
+      <button class="btn-action-done" onclick="markDone('{{ action.id }}', this)">
+        ✓ Mark Done
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Done Modal overlay (inline) -->
+<div id="done-toast" style="position:fixed;bottom:24px;right:24px;background:var(--green-dark);color:#fff;border-radius:14px;padding:1rem 1.5rem;font-size:0.9rem;box-shadow:0 8px 30px rgba(0,0,0,0.25);display:none;z-index:9999;max-width:300px">
+  <div class="fw-bold mb-1" id="toast-title">🎉 Action Completed!</div>
+  <div id="toast-desc"></div>
+</div>
+
+<style>
+.action-hero { background:linear-gradient(135deg,var(--green-mist),var(--cream)); border-radius:22px; padding:2rem 2.5rem; }
+.action-hero-stat { background:var(--paper); border-radius:12px; padding:.75rem 1.25rem; border:1px solid var(--cream-dark); text-align:center; }
+
+@keyframes rotate-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes orbit1 { from{transform:rotate(0deg) translateX(82px) rotate(0deg)} to{transform:rotate(360deg) translateX(82px) rotate(-360deg)} }
+@keyframes orbit2 { from{transform:rotate(120deg) translateX(82px) rotate(-120deg)} to{transform:rotate(480deg) translateX(82px) rotate(-480deg)} }
+@keyframes orbit3 { from{transform:rotate(240deg) translateX(82px) rotate(-240deg)} to{transform:rotate(600deg) translateX(82px) rotate(-600deg)} }
+.earth-svg { animation:rotate-slow 20s linear infinite; }
+.earth-wrap { display:inline-block; }
+.orbit-1 { transform-origin:100px 100px; animation:orbit1 6s linear infinite; }
+.orbit-2 { transform-origin:100px 100px; animation:orbit2 8s linear infinite; }
+.orbit-3 { transform-origin:100px 100px; animation:orbit3 10s linear infinite; }
+
+.global-counter-bar { background:var(--green-dark); border-radius:16px; color:#fff; }
+.counter-num  { font-family:'DM Serif Display',serif; font-size:2rem; color:var(--amber); line-height:1; }
+.counter-label { font-size:0.7rem; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+
+.action-card { background:var(--paper); border-radius:14px; padding:1.1rem; box-shadow:var(--shadow-sm); border:1px solid var(--cream-dark); height:100%; display:flex; flex-direction:column; transition:all .25s; }
+.action-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:var(--green-pale); }
+.action-card.done { background:var(--green-mist); border-color:var(--green-mid); }
+.action-card-icon  { font-size:2rem; margin-bottom:6px; }
+.action-card-title { font-size:0.85rem; font-weight:700; color:var(--ink); line-height:1.3; }
+.action-card-marathi { font-size:0.75rem; color:var(--ink-soft); margin-top:3px; }
+.action-co2 { font-size:0.78rem; font-weight:800; color:var(--green-main); background:var(--green-mist); padding:2px 8px; border-radius:20px; }
+.action-diff { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.diff-easy   { color:var(--green-main); }
+.diff-medium { color:var(--amber-deep); }
+.diff-hard   { color:#e8604a; }
+.btn-action-done { width:100%; margin-top:auto; padding:6px; border-radius:8px; border:1.5px solid var(--green-mid); background:transparent; color:var(--green-main); font-size:0.78rem; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-action-done:hover { background:var(--green-main); color:#fff; }
+.btn-action-done.done { background:var(--green-main); color:#fff; cursor:default; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const actionData = {{ actions|tojson }};
+
+function filterActions(cat, btn) {
+  document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.action-item').forEach(el => {
+    el.style.display = (cat === 'all' || el.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+function filterImpact(impact, btn) {
+  document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.action-item').forEach(el => {
+    el.style.display = el.dataset.impact === impact ? '' : 'none';
+  });
+}
+
+async function markDone(actionId, btn) {
+  if (btn.classList.contains('done')) return;
+  btn.textContent = '⏳ Logging...';
+  try {
+    const r = await fetch('/api/log-action', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action_id: actionId})
+    });
+    const d = await r.json();
+    btn.textContent = '✅ Done!';
+    btn.classList.add('done');
+    btn.closest('.action-card').classList.add('done');
+
+    const toast = document.getElementById('done-toast');
+    document.getElementById('toast-title').textContent = '🎉 ' + d.title;
+    document.getElementById('toast-desc').textContent = `${d.co2_avoided} kg CO₂ avoided! Badge earned 🏅`;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 3500);
+
+    // Update counter
+    const el = document.getElementById('global-co2');
+    const current = parseInt(el.textContent) || 0;
+    el.textContent = current + Math.round(d.co2_avoided);
+  } catch(e) {
+    btn.textContent = '✓ Mark Done';
+  }
+}
+
+// Animated counter on load
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('global-co2');
+  const target = parseInt(el.textContent) || 0;
+  let current = 0;
+  const step  = Math.ceil(target / 60);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current.toLocaleString('en-IN');
+    if (current >= target) clearInterval(timer);
+  }, 30);
+});
+</script>
+{% endblock %}

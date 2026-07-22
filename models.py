@@ -65,3 +65,18 @@ class Badge(db.Model):
 
     def __repr__(self):
         return f'<Badge {self.name}>'
+
+
+class CompletedAction(db.Model):
+    __tablename__ = 'completed_actions'
+    id          = db.Column(db.Integer, primary_key=True)
+    user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    action_id   = db.Column(db.String(10), nullable=False)
+    title       = db.Column(db.String(100), nullable=False)
+    co2_saved   = db.Column(db.Float, default=0.0)
+    date        = db.Column(db.Date, nullable=False)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<CompletedAction {self.action_id} by user {self.user_id}>'
+

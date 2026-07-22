@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+{% block title %}Waste Analyzer — GreenSaathi♻️{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <div class="page-icon me-3">♻️</div>
+  <div>
+    <h2 class="fw-bold mb-0">AI Waste Analyzer</h2>
+    <p class="text-muted mb-0">कचऱ्याचा फोटो काढा किंवा describe करा → AI सांगेल योग्य disposal method</p>
+  </div>
+</div>
+
+<!-- THIS PAGE IS INSPIRED BY REAL PROBLEM -->
+<div class="mb-4 p-3 rounded-3" style="background:linear-gradient(135deg,#fde8e6,#fff0ec);border-left:4px solid #e8604a">
+  <div class="d-flex align-items-start gap-3">
+    <span style="font-size:1.8rem">🔥</span>
+    <div>
+      <div class="fw-bold" style="color:#7a2018">Open waste burning — सर्वात हानिकारक!</div>
+      <div style="font-size:0.85rem;color:#a83228;margin-top:3px">
+        1 kg plastic जाळणे = 2.9 kg CO₂ + cancer-causing dioxins + 2,000 litres toxic air.
+        MPCB Rule 2016 नुसार हे <strong>illegal</strong> आहे. ₹25,000 दंड होऊ शकतो.
+        तुमच्या area मध्ये दिसल्यास खाली complaint numbers वापरा.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- LEFT: Input Panel -->
+  <div class="col-lg-5">
+
+    <!-- Camera Section -->
+    <div class="chart-card mb-4">
+      <h5 class="chart-title">📷 Photo काढा किंवा Upload करा</h5>
+
+      <div id="cam-area" style="background:var(--cream);border:2px dashed var(--green-pale);border-radius:12px;padding:1.5rem;text-align:center;min-height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+        <div id="cam-placeholder">
+          <div style="font-size:3.5rem;margin-bottom:8px">♻️</div>
+          <p class="text-muted mb-3" style="font-size:0.85rem">कचऱ्याचा फोटो capture करा</p>
+          <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <button class="btn btn-eco-primary btn-sm px-3" onclick="startCam()">📷 Camera</button>
+            <label class="btn btn-sm px-3" style="border:1.5px solid var(--cream-dark);border-radius:10px;cursor:pointer;background:var(--paper)">
+              📁 Upload <input type="file" accept="image/*" onchange="uploadWaste(this)" style="display:none"/>
+            </label>
+          </div>
+        </div>
+        <video id="waste-video" autoplay style="display:none;width:100%;border-radius:8px;max-height:200px;object-fit:cover"></video>
+        <img id="waste-img" style="display:none;width:100%;border-radius:8px;max-height:200px;object-fit:cover"/>
+      </div>
+
+      <div id="cam-ctrls" style="display:none;text-align:center;margin-top:8px">
+        <button class="btn btn-eco-primary btn-sm me-2" onclick="snapWaste()">📸 Capture</button>
+        <button class="btn btn-sm" style="border:1px solid var(--cream-dark);border-radius:8px" onclick="stopCam()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="chart-card mb-4">
+      <h5 class="chart-title">✏️ कचरा Describe करा</h5>
+      <textarea id="waste-desc" class="form-control" rows="3"
+        placeholder="e.g. plastic bottles burning with smoke, torn polythene bags, construction bricks debris, mixed garbage pile...&#10;&#10;मराठीत: प्लास्टिक जाळत आहे, विटा आणि कागद पडले आहेत, धूर येत आहे..."></textarea>
+      <div class="mt-2" style="font-size:0.75rem;color:var(--ink-soft)">
+        Keywords: burning, plastic, paper, brick, concrete, food, electronic, medical, smoke, mixed
+      </div>
+
+      <!-- Quick Tags -->
+      <div class="mt-3">
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:8px">Quick select:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="waste-tag" onclick="addTag('burning plastic smoke')">🔥 Burning waste</button>
+          <button class="waste-tag" onclick="addTag('plastic bottles bags')">🧴 Plastic</button>
+          <button class="waste-tag" onclick="addTag('paper cardboard')">📄 Paper</button>
+          <button class="waste-tag" onclick="addTag('brick concrete construction')">🧱 Construction</button>
+          <button class="waste-tag" onclick="addTag('food organic wet')">🍌 Organic</button>
+          <button class="waste-tag" onclick="addTag('electronic mobile battery')">📱 E-waste</button>
+          <button class="waste-tag" onclick="addTag('mixed garbage')">🗑️ Mixed</button>
+          <button class="waste-tag" onclick="addTag('tyre rubber')">⚙️ Tyre</button>
+        </div>
+      </div>
+
+      <button class="btn btn-eco-primary w-100 mt-3 py-2" onclick="analyzeWaste()" id="analyze-btn">
+        🔍 Analyze & Get Disposal Guide
+      </button>
+    </div>
+
+    <!-- Emergency Complaint Numbers -->
+    <div class="chart-card" style="border-top:3px solid #e8604a">
+      <h5 class="chart-title" style="color:#7a2018">☎️ Complaint Helplines</h5>
+      <div style="font-size:0.82rem">
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span>🏙️ Pune PCMC</span><a href="tel:02025506800" style="font-weight:700;color:#e8604a">020-25506800</a>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span>🏙️ Mumbai MCGM</span><a href="tel:1916" style="font-weight:700;color:#e8604a">1916</a>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span>🏙️ Nashik NMC</span><a href="tel:18002334678" style="font-weight:700;color:#e8604a">1800-233-4678</a>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span>🌿 MPCB (State)</span><a href="tel:18002335500" style="font-weight:700;color:#e8604a">1800-233-5500</a>
+        </div>
+        <div class="d-flex justify-content-between py-1">
+          <span>📱 SwachSurvekshan App</span><span style="color:var(--green-main);font-weight:700">Report + Photo</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Results Panel -->
+  <div class="col-lg-7">
+
+    <!-- Default guidance (shown before analysis) -->
+    <div id="default-guide">
+      <div class="chart-card mb-4">
+        <h5 class="chart-title">🗑️ Maharashtra Waste Segregation Guide</h5>
+        <div class="row g-3">
+          <div class="col-6">
+            <div style="background:#e8f5e9;border-radius:12px;padding:1rem;border-left:4px solid #2d8a56">
+              <div style="font-size:1.3rem;margin-bottom:4px">🟢</div>
+              <div class="fw-bold" style="color:#1a5c38;font-size:0.88rem">Green Bin — ओला कचरा</div>
+              <div style="font-size:0.78rem;color:#2a5010;margin-top:4px">
+                ✓ भाजीपाला, फळे, शिजलेले अन्न<br/>
+                ✓ चहा पत्ती, अंडे shell<br/>
+                ✓ फुले, पाने<br/>
+                → Composting मध्ये जातो
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:#e3f0fa;border-radius:12px;padding:1rem;border-left:4px solid #3a86c8">
+              <div style="font-size:1.3rem;margin-bottom:4px">🔵</div>
+              <div class="fw-bold" style="color:#1a4a80;font-size:0.88rem">Blue Bin — सुका कचरा</div>
+              <div style="font-size:0.78rem;color:#1a4a80;margin-top:4px">
+                ✓ Paper, cardboard, newspaper<br/>
+                ✓ Plastic bottles (clean)<br/>
+                ✓ Glass, metal tins<br/>
+                → Kabadiwala / Recycle
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:#fde8e6;border-radius:12px;padding:1rem;border-left:4px solid #e8604a">
+              <div style="font-size:1.3rem;margin-bottom:4px">🔴</div>
+              <div class="fw-bold" style="color:#7a2018;font-size:0.88rem">Red Bin — घातक कचरा</div>
+              <div style="font-size:0.78rem;color:#7a2018;margin-top:4px">
+                ✓ Batteries, medicines<br/>
+                ✓ Paint, chemicals<br/>
+                ✓ E-waste, CFL bulbs<br/>
+                → Authorized collector
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:var(--amber-light);border-radius:12px;padding:1rem;border-left:4px solid var(--amber)">
+              <div style="font-size:1.3rem;margin-bottom:4px">⚫</div>
+              <div class="fw-bold" style="color:#7a4e0a;font-size:0.88rem">Black — Sanitary</div>
+              <div style="font-size:0.78rem;color:#7a4e0a;margin-top:4px">
+                ✓ Sanitary napkins, diapers<br/>
+                ✓ Used tissues<br/>
+                ✓ Soiled packaging<br/>
+                → Wrap in paper → general
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="eco-note p-3 mt-3" style="font-size:0.82rem">
+          💡 Kabadiwala numbers: <strong>Saahas Kabadiwala (Bengaluru):</strong> kabadiwala.com | <strong>Recykal:</strong> recykal.com | <strong>Junk Daddy:</strong> junkdaddy.in — घरपोच pickup!
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h5 class="chart-title">📊 Open Burning — Reality Check</h5>
+        <div class="row g-3 text-center">
+          <div class="col-4">
+            <div class="stat-card">
+              <div class="stat-card-icon">🔥</div>
+              <div class="stat-card-val text-danger">2.9</div>
+              <div class="stat-card-label">kg CO₂ per kg plastic burned</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-card">
+              <div class="stat-card-icon">💨</div>
+              <div class="stat-card-val text-danger">2,000L</div>
+              <div class="stat-card-label">toxic air per kg plastic</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-card">
+              <div class="stat-card-icon">⚖️</div>
+              <div class="stat-card-val text-danger">₹25K</div>
+              <div class="stat-card-label">MPCB fine for burning</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis Result (shown after API call) -->
+    <div id="analysis-result" style="display:none">
+      <div id="urgency-banner" class="mb-3 p-3 rounded-3"></div>
+      <div id="waste-results-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.waste-tag { background:var(--paper); border:1.5px solid var(--cream-dark); border-radius:20px; padding:4px 12px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all .18s; color:var(--ink-soft); }
+.waste-tag:hover { background:var(--green-mist); border-color:var(--green-pale); color:var(--green-dark); }
+.step-item { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--cream-dark); }
+.step-item:last-child { border-bottom:none; }
+.step-dot { width:6px; height:6px; border-radius:50%; background:var(--green-mid); margin-top:7px; flex-shrink:0; }
+.danger-critical { background:#fde8e6; border:1px solid #f5c4be; border-radius:12px; padding:1rem 1.25rem; margin-bottom:1rem; }
+.danger-high     { background:var(--amber-light); border:1px solid #f5d89a; border-radius:12px; padding:1rem 1.25rem; margin-bottom:1rem; }
+.danger-medium   { background:var(--green-mist); border:1px solid var(--green-pale); border-radius:12px; padding:1rem 1.25rem; margin-bottom:1rem; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let camStream = null;
+
+function startCam() {
+  document.getElementById('cam-placeholder').style.display = 'none';
+  document.getElementById('waste-video').style.display = 'block';
+  document.getElementById('cam-ctrls').style.display = 'block';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+    .then(s => { camStream = s; document.getElementById('waste-video').srcObject = s; })
+    .catch(() => { alert('Camera access denied. Upload a photo instead.'); stopCam(); });
+}
+
+function snapWaste() {
+  const v = document.getElementById('waste-video');
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  const img = document.getElementById('waste-img');
+  img.src = c.toDataURL(); img.style.display = 'block';
+  v.style.display = 'none';
+  stopCam();
+  document.getElementById('waste-desc').focus();
+}
+
+function stopCam() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  document.getElementById('cam-ctrls').style.display = 'none';
+}
+
+function uploadWaste(input) {
+  const file = input.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('cam-placeholder').style.display = 'none';
+    const img = document.getElementById('waste-img');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('waste-desc').focus();
+  };
+  r.readAsDataURL(file);
+}
+
+function addTag(text) {
+  const ta = document.getElementById('waste-desc');
+  ta.value = (ta.value ? ta.value + ' ' : '') + text;
+  ta.focus();
+}
+
+async function analyzeWaste() {
+  const text = document.getElementById('waste-desc').value.trim();
+  if (!text) { alert('कृपया कचऱ्याचे वर्णन करा!'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+
+  try {
+    const r = await fetch('/api/analyze-waste', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({waste_text: text})
+    });
+    const d = await r.json();
+    if (d.error) { alert(d.error); return; }
+    renderResults(d);
+  } catch(e) {
+    alert('Error analyzing. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 Analyze & Get Disposal Guide';
+  }
+}
+
+function renderResults(data) {
+  document.getElementById('default-guide').style.display = 'none';
+  document.getElementById('analysis-result').style.display = 'block';
+
+  // Urgency banner
+  const banner = document.getElementById('urgency-banner');
+  if (data.urgency === 'critical') {
+    banner.className = 'mb-3 p-3 rounded-3';
+    banner.style.cssText = 'background:#fde8e6;border:2px solid #e8604a';
+    banner.innerHTML = '<strong style="color:#7a2018;font-size:1rem">🚨 CRITICAL — तत्काळ action आवश्यक!</strong><br/><span style="font-size:0.85rem;color:#a83228">Open burning किंवा hazardous waste detected. MPCB helpline: <strong>1800-233-5500</strong></span>';
+  } else if (data.urgency === 'high') {
+    banner.className = 'mb-3 p-3 rounded-3';
+    banner.style.cssText = 'background:var(--amber-light);border:1px solid #f5d89a';
+    banner.innerHTML = '<strong style="color:#7a4e0a">⚠️ Recyclable waste detected — proper disposal important!</strong>';
+  } else {
+    banner.className = 'mb-3 p-3 rounded-3';
+    banner.style.cssText = 'background:var(--green-mist);border:1px solid var(--green-pale)';
+    banner.innerHTML = '<strong style="color:var(--green-dark)">✅ Waste identified — follow the steps below</strong>';
+  }
+
+  // Results cards
+  const container = document.getElementById('waste-results-container');
+  container.innerHTML = '';
+  data.results.forEach(r => {
+    const dangerClass = r.danger === 'critical' ? 'danger-critical' : r.danger === 'high' ? 'danger-high' : 'danger-medium';
+    const stepsHtml = r.steps.map(s =>
+      `<div class="step-item"><div class="step-dot"></div><div style="font-size:0.85rem;line-height:1.5">${s}</div></div>`
+    ).join('');
+
+    container.innerHTML += `
+      <div class="${dangerClass}">
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <span style="font-size:2rem">${r.emoji}</span>
+          <div>
+            <div class="fw-bold" style="font-size:1rem">${r.marathi} — ${r.type}</div>
+            ${r.carbon_impact > 0 ? `<div style="font-size:0.8rem;margin-top:3px;color:${r.danger==='critical'?'#a83228':'#7a4e0a'}">⚠️ जाळल्यास: ${r.carbon_impact} kg CO₂ per kg waste</div>` : ''}
+          </div>
+        </div>
+        <div class="fw-bold mb-2" style="font-size:0.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--green-main)">योग्य disposal steps:</div>
+        ${stepsHtml}
+        ${r.carbon_saved ? `<div class="mt-3 p-2 rounded-2" style="background:rgba(45,138,86,0.08);font-size:0.8rem"><strong>🌱 Carbon impact:</strong> ${r.carbon_saved}</div>` : ''}
+        ${r.alternatives ? `<div class="mt-2 p-2 rounded-2" style="background:rgba(232,160,32,0.1);font-size:0.8rem"><strong>💡 Better alternative:</strong> ${r.alternatives}</div>` : ''}
+      </div>`;
+  });
+
+  // Back button
+  container.innerHTML += `
+    <button class="btn w-100 mt-2" style="border:1.5px solid var(--cream-dark);border-radius:10px;font-weight:600;padding:.6rem"
+      onclick="resetAnalyzer()">🔄 Analyze Another Waste</button>`;
+
+  document.getElementById('analysis-result').scrollIntoView({behavior:'smooth'});
+}
+
+function resetAnalyzer() {
+  document.getElementById('default-guide').style.display = 'block';
+  document.getElementById('analysis-result').style.display = 'none';
+  document.getElementById('waste-desc').value = '';
+}
+</script>
+{% endblock %}

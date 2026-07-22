@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Global Impact — GreenSaathi{% endblock %}
+{% block content %}
+<div class="text-center mb-4 py-4" style="background:linear-gradient(135deg,var(--green-dark),#0f3d22);border-radius:22px;color:#fff">
+  <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:8px">GreenSaathi Community Impact</div>
+  <h2 style="font-family:'DM Serif Display',serif;font-size:2.2rem;color:#fff;margin-bottom:8px">Together We're Making a Difference 🌍</h2>
+  <p style="color:rgba(255,255,255,0.7);font-size:0.88rem;max-width:480px;margin:0 auto">Every log contributes to this counter. When individuals unite, miracles happen!</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-card-icon">👥</div><div class="stat-card-val counter" data-target="{{ total_users }}">0</div><div class="stat-card-label">Users</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-card-icon">📊</div><div class="stat-card-val counter" data-target="{{ total_logs }}">0</div><div class="stat-card-label">Days Logged</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-card-icon">🌿</div><div class="stat-card-val counter text-success" data-target="{{ avoided|int }}">0</div><div class="stat-card-label">kg CO₂ Avoided</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-card-icon">🌳</div><div class="stat-card-val counter text-primary" data-target="{{ trees_equiv|int }}">0</div><div class="stat-card-label">Trees Equivalent</div></div></div>
+</div>
+
+<div class="chart-card mb-4">
+  <h5 class="chart-title">✨ What {{ avoided|int }} kg CO₂ Avoided Means</h5>
+  <div class="row g-3 text-center">
+    <div class="col-md-4"><div style="background:var(--green-mist);border-radius:14px;padding:1.25rem"><div style="font-size:2.5rem">🌳</div><div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--green-main)">{{ trees_equiv }}</div><div style="font-size:0.72rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:4px">Trees planted (annual work)</div></div></div>
+    <div class="col-md-4"><div style="background:var(--sky-pale);border-radius:14px;padding:1.25rem"><div style="font-size:2.5rem">✈️</div><div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#1a4a80">{{ flights_equiv }}</div><div style="font-size:0.72rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:4px">Flights avoided (Mumbai-Delhi)</div></div></div>
+    <div class="col-md-4"><div style="background:var(--amber-light);border-radius:14px;padding:1.25rem"><div style="font-size:2.5rem">🚗</div><div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#7a4e0a">{{ km_driving }}</div><div style="font-size:0.72rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:4px">km not driven by car</div></div></div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="chart-card h-100">
+      <h5 class="chart-title">🏙️ City-wise Average CO₂/day</h5>
+      {% if city_labels != '[]' %}<canvas id="cityChart" height="200"></canvas>{% else %}<div class="empty-chart"><p class="text-muted">अजून city data नाही.</p></div>{% endif %}
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="chart-card h-100">
+      <h5 class="chart-title">🌟 Your Personal Contribution</h5>
+      <div class="text-center py-3">
+        <div style="font-size:4rem">🏆</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:3rem;color:var(--green-main);line-height:1">{{ my_avoided }}</div>
+        <div style="font-size:0.72rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.06em">kg CO₂ avoided by YOU</div>
+        <div style="font-size:0.85rem;color:var(--ink-mid);margin-top:.5rem">Over {{ my_logs }} logged days</div>
+      </div>
+      <div class="eco-note p-3 text-center" style="font-size:0.85rem">🌳 Like planting <strong>{{ (my_avoided/22)|round(1) }} trees</strong> + avoiding <strong>{{ (my_avoided/255)|round(1) }} flights!</strong></div>
+      <a href="{{ url_for('calculate') }}" class="btn btn-eco-primary w-100 mt-3">Log More → Bigger Impact</a>
+    </div>
+  </div>
+</div>
+
+<div class="chart-card mb-4">
+  <h5 class="chart-title">🎯 Community Monthly Goal — 1,000 kg CO₂</h5>
+  <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem"><span class="fw-bold">{{ [avoided|int, 1000]|min }} / 1,000 kg</span><span style="color:var(--green-main);font-weight:700">{{ [(avoided/10)|int, 100]|min }}%</span></div>
+  <div class="progress mb-2" style="height:18px;border-radius:9px">
+    <div class="progress-bar" style="width:{{ [(avoided/10)|int, 100]|min }}%;border-radius:9px;background:linear-gradient(90deg,var(--green-mid),var(--green-light))"></div>
+  </div>
+</div>
+
+<div class="text-center py-4" style="background:linear-gradient(135deg,var(--green-mist),var(--cream));border-radius:22px">
+  <h4 style="font-family:'DM Serif Display',serif;color:var(--green-dark)">Be Part of the Movement 🌍</h4>
+  <p class="text-muted mb-4" style="font-size:0.88rem">Every small action adds up. Log today. Take an action. Inspire others.</p>
+  <div class="d-flex gap-3 justify-content-center flex-wrap">
+    <a href="{{ url_for('action_library') }}" class="btn btn-eco-primary btn-lg px-5">⚡ Take Action Now</a>
+    <a href="{{ url_for('pledge') }}" class="btn btn-lg px-4" style="border:2px solid var(--green-mid);border-radius:14px;color:var(--green-main);font-weight:700">🤝 Make a Pledge</a>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.counter').forEach(el => {
+  const target = parseInt(el.dataset.target) || 0;
+  let current  = 0;
+  const step   = Math.ceil(target / 80);
+  const timer  = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current.toLocaleString('en-IN');
+    if (current >= target) clearInterval(timer);
+  }, 20);
+});
+const cl = {{ city_labels|safe }}, cv = {{ city_values|safe }};
+if (cl.length > 0 && document.getElementById('cityChart')) {
+  new Chart(document.getElementById('cityChart'), {
+    type:'bar',
+    data:{ labels:cl, datasets:[{ label:'Avg kg CO₂/day', data:cv, backgroundColor:cv.map(v=>v<5?'#2d8a56':v<7?'#e8a020':'#e8604a'), borderRadius:6 }] },
+    options:{ responsive:true, indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, title:{display:true,text:'kg CO₂/day'}}} }
+  });
+}
+</script>
+{% endblock %}
