@@ -523,13 +523,15 @@ def global_impact():
 
     city_data = defaultdict(list)
     for l in all_logs:
-        city_data[l.user.city or 'Unknown'].append(l.total_co2)
+        user_city = l.user.city if l.user and l.user.city else 'Unknown'
+        city_data[user_city].append(l.total_co2)
     city_avgs  = {c: round(sum(v)/len(v),2) for c,v in city_data.items() if len(v)>=1}
     city_sorted= sorted(city_avgs.items(), key=lambda x: x[1])[:8]
 
     week_totals = defaultdict(list)
     for l in all_logs:
-        week_totals[l.date.strftime('%Y-W%V')].append(l.total_co2)
+        date_str = l.date.strftime('%Y-W%V') if hasattr(l.date, 'strftime') else str(l.date)
+        week_totals[date_str].append(l.total_co2)
     sorted_wks = sorted(week_totals.items())[-8:]
     w_labels   = [w[0] for w in sorted_wks]
     w_avgs     = [round(sum(w[1])/len(w[1]),2) for w in sorted_wks]
@@ -541,12 +543,17 @@ def global_impact():
         sum(l.total_co2 for l in u.logs)/len(u.logs) > user_avg)
     rank_pct = int(round(users_below/max(all_users-1,1)*100, 0))
 
+    km_driving = round(saved / 0.21, 1) if saved else 0
+    my_logs    = len(user_logs)
+    my_avoided = round(max(0, (india_avg - user_avg) * my_logs), 1)
+
     return render_template('global_impact.html',
-        user=user, all_users=all_users, total_days=total_days,
-        total_logged=total_logged, saved=saved, trees=trees, flights=flights,
+        user=user, total_users=all_users, total_logs=total_days,
+        total_logged=total_logged, avoided=saved, trees_equiv=trees, flights_equiv=flights,
+        km_driving=km_driving, my_avoided=my_avoided, my_logs=my_logs,
         avg_community=avg_community, city_sorted=city_sorted,
         city_labels=json.dumps([c[0] for c in city_sorted]),
-        city_vals=json.dumps([c[1] for c in city_sorted]),
+        city_values=json.dumps([c[1] for c in city_sorted]),
         w_labels=json.dumps(w_labels), w_avgs=json.dumps(w_avgs),
         user_avg=user_avg, rank_pct=rank_pct)
 
