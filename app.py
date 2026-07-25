@@ -9,7 +9,8 @@ from ai_engine import (ecobot, predictor, recommender,
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'carbon_tracker_hackathon_2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carbon_tracker.db'
+# Change line 12 in the main app.py file to:
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:2004@localhost:5432/carbon_tracker_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -46,6 +47,12 @@ def login_required(f):
     def decorated(*args, **kwargs):
         if 'user_id' not in session:
             return redirect(url_for('login'))
+        
+        user = User.query.get(session['user_id'])
+        if user is None:
+            session.clear()
+            return redirect(url_for('login'))
+            
         return f(*args, **kwargs)
     return decorated
 

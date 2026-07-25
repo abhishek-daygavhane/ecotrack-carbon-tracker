@@ -6,7 +6,8 @@ import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'carbon_tracker_hackathon_2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carbon_tracker.db'
+# Format: postgresql://postgres:2004@host:5432/carbon_tracker_db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:2004@localhost:5432/carbon_tracker_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
