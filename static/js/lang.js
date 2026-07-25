@@ -219,6 +219,116 @@ const TRANSLATIONS = {
     /* FOOTER */
     "footer.text":     "एकत्र आपण कार्बन फूटप्रिंट कमी करू शकतो",
     "footer.built":    "हॅकाथॉन २०२५ साठी तयार केले",
+  },
+
+  hi: {
+    /* NAV */
+    "nav.dashboard":   "डैशबोर्ड",
+    "nav.log":         "आज का लॉग",
+    "nav.learn":       "सीखें",
+    "nav.tips":        "50+ टिप्स",
+    "nav.challenge":   "30-दिन की चुनौती",
+    "nav.awareness":   "जलवायु जागरूकता",
+    "nav.pledge":      "प्रतिज्ञा लें",
+    "nav.myimpact":    "मेरा प्रभाव",
+    "nav.twin":        "मेरा कार्बन ट्विन",
+    "nav.advisor":     "AI सलाहकार",
+    "nav.simulator":   "सिम्युलेटर",
+    "nav.leaderboard": "लीडरबोर्ड",
+    "nav.logout":      "लॉग आउट",
+    "nav.login":       "लॉग इन",
+    "nav.getstarted":  "शुरू करें",
+
+    /* HOME */
+    "home.eyebrow":    "पर्यावरण जागरूकता परियोजना",
+    "home.title1":     "अपना",
+    "home.title2":     "कार्बन फुटप्रिंट",
+    "home.title3":     "ट्रैक करें, पृथ्वी बचाएं",
+    "home.sub":        "हर व्यक्ति की रोज़ की आदतें मायने रखती हैं। ग्लोबल वार्मिंग से लड़ने के लिए ट्रैक करें, कम करें और प्रतिस्पर्धा करें।",
+    "home.cta":        "मुफ़्त ट्रैकिंग शुरू करें",
+    "home.how":        "यह कैसे काम करता है",
+    "home.features":   "EcoTrack कैसे काम करता है",
+    "home.f1title":    "रोज़ की गतिविधियाँ दर्ज़ करें",
+    "home.f1desc":     "अपनी परिवहन, भोजन, ऊर्जा और खरीदारी की आदतें रोज़ दर्ज़ करें।",
+    "home.f2title":    "प्रगति देखें",
+    "home.f2desc":     "साप्ताहिक और मासिक चार्ट में अपनी कार्बन कमी देखें।",
+    "home.f3title":    "50+ हरित टिप्स",
+    "home.f3desc":     "परिवहन, भोजन, ऊर्जा, पानी और कचरे के लिए व्यक्तिगत सुझाव।",
+    "home.f4title":    "30-दिन की चुनौती",
+    "home.f4desc":     "रोज़ एक हरित कार्य करें। बैज जीतें और शहर से मुकाबला करें!",
+    "home.f5title":    "लीडरबोर्ड",
+    "home.f5desc":     "दोस्तों और शहरों से तुलना करें। देखें कौन सबसे ज्यादा फर्क ला रहा है।",
+    "home.f6title":    "जलवायु जागरूकता",
+    "home.f6desc":     "जलवायु के मुख्य तथ्य, भारत का संदर्भ और आप क्या कर सकते हैं, यह जानें।",
+    "home.f7title":    "बैज अर्जित करें",
+    "home.f7desc":     "हरित उपलब्धियों के लिए इनाम पाएं — ग्रीन डे, वीक वॉरियर!",
+    "home.f8title":    "पेड़ प्रभाव मीटर",
+    "home.f8desc":     "देखें कि आपने भारत के औसत की तुलना में कितने पेड़ों जितना CO₂ बचाया है।",
+    "home.cta2title":  "क्या आप बदलाव लाने के लिए तैयार हैं?",
+    "home.cta2sub":    "EcoTrack से जुड़ें और टिकाऊ भविष्य की ओर अपना पहला कदम बढ़ाएं।",
+    "home.cta2btn":    "अभी EcoTrack से जुड़ें",
+    "home.stat1":      "टन CO₂ रोज़ उत्सर्जित",
+    "home.stat2":      "औसत दैनिक कार्बन/व्यक्ति",
+    "home.stat3":      "गंभीर वार्मिंग सीमा",
+    "home.stat4":      "जीवनशैली से कम होने वाला उत्सर्जन",
+
+    /* DASHBOARD */
+    "dash.welcome":    "वापसी पर स्वागत है",
+    "dash.subtitle":   "ट्रैक करें, कम करें और बैज कमाएं",
+    "dash.logbtn":     "आज का लॉग",
+    "dash.ecoscore":   "आपका EcoScore आपके उत्सर्जन स्तर, ट्रैकिंग निरंतरता और अर्जित बैज पर आधारित है।",
+    "dash.mytwin":     "मेरा ट्विन",
+    "dash.advisor":    "AI सलाहकार",
+    "dash.loading":    "आज की इको टिप लोड हो रही है...",
+    "dash.today":      "आज (kg CO₂)",
+    "dash.weekavg":    "साप्ताहिक औसत",
+    "dash.monthtotal": "मासिक कुल",
+    "dash.badges":     "बैज",
+    "dash.trend":      "30-दिन का कार्बन ट्रेंड",
+    "dash.breakdown":  "उत्सर्जन विवरण",
+    "dash.mybadges":   "आपके बैज",
+    "dash.keeplogging":"बैज कमाने के लिए लॉग करते रहें!",
+    "dash.recentlogs": "हाल के लॉग",
+    "dash.nologs":     "अभी कोई डेटा नहीं।",
+    "dash.logfirst":   "अपना पहला दिन लॉग करें!",
+
+    /* CALCULATE */
+    "calc.title":      "आज का कार्बन फुटप्रिंट दर्ज़ करें",
+    "calc.sub":        "अपने CO₂ प्रभाव की गणना करने के लिए रोज़ की गतिविधियां भरें",
+    "calc.transport":  "परिवहन",
+    "calc.mode":       "परिवहन का साधन",
+    "calc.km":         "तय की गई दूरी (km)",
+    "calc.food":       "भोजन और आहार",
+    "calc.diettype":   "आज के आहार का प्रकार",
+    "calc.energy":     "घरेलू ऊर्जा",
+    "calc.elec":       "आज इस्तेमाल की गई बिजली (kWh)",
+    "calc.lpg":        "इस्तेमाल किया गया LPG (kg)",
+    "calc.shopping":   "खरीदारी और खर्च",
+    "calc.spend":      "आज खर्च की गई राशि (₹)",
+    "calc.savebtn":    "आज का फुटप्रिंट सहेजें",
+    "calc.preview":    "आज का कुल",
+
+    /* TIPS */
+    "tips.title":      "अपना कार्बन फुटप्रिंट कम करने के 50+ तरीके",
+    "tips.sub":        "आपका सबसे अधिक उत्सर्जन क्षेत्र",
+    "tips.focus":      "यहाँ पहले ध्यान दें",
+    "tips.all":        "सभी टिप्स",
+    "tips.highonly":   "केवल उच्च प्रभाव",
+
+    /* LEADERBOARD */
+    "lb.title":        "समुदाय लीडरबोर्ड",
+    "lb.sub":          "कम CO₂ = बेहतर रैंक! 30-दिन का दैनिक औसत।",
+    "lb.individual":   "व्यक्तिगत रैंकिंग",
+    "lb.city":         "शहर की तुलना",
+    "lb.user":         "यूज़र",
+    "lb.cityCol":      "शहर",
+    "lb.avg":          "औसत CO₂/दिन",
+    "lb.days":         "लॉग किए गए दिन",
+    "lb.you":          "आप",
+
+    /* FOOTER */
+    "footer.text":     "हम मिलकर अपना कार्बन फुटप्रिंट कम कर सकते हैं",
+    "footer.built":    "हैकथॉन 2025 के लिए निर्मित",
   }
 };
 
@@ -235,14 +345,22 @@ function applyLang(lang) {
     }
   });
 
-  const btn = document.getElementById('lang-btn');
-  if (btn) btn.textContent = lang === 'en' ? 'मराठी' : 'English';
+  const btn1 = document.getElementById('lang-btn');
+  const btn2 = document.getElementById('lang-btn-out');
+  const svgIcon = ' <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;vertical-align:-2px"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+  
+  let btnText = 'English';
+  if (lang === 'mr') btnText = 'मराठी';
+  else if (lang === 'hi') btnText = 'हिंदी';
+  
+  if (btn1) btn1.innerHTML = btnText + svgIcon;
+  if (btn2) btn2.innerHTML = btnText + svgIcon;
 
-  document.documentElement.lang = lang === 'mr' ? 'mr' : 'en';
+  document.documentElement.lang = lang === 'mr' ? 'mr' : (lang === 'hi' ? 'hi' : 'en');
 }
 
-function toggleLang() {
-  applyLang(currentLang === 'en' ? 'mr' : 'en');
+function changeLang(lang) {
+  applyLang(lang);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

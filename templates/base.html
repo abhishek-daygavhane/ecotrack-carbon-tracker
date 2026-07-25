@@ -120,7 +120,16 @@
           <span data-lang-key="nav.leaderboard">Leaderboard</span>
         </a></li>
 
-        <li class="nav-item"><button class="lang-toggle" id="lang-btn" onclick="toggleLang()">मराठी</button></li>
+        <li class="nav-item dropdown">
+          <button class="lang-toggle" id="lang-btn" data-bs-toggle="dropdown" aria-expanded="false" style="display:flex; align-items:center;">
+            English <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;vertical-align:-2px"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" style="min-width: 120px;">
+            <li><button class="dropdown-item" onclick="changeLang('en')">English</button></li>
+            <li><button class="dropdown-item" onclick="changeLang('mr')">मराठी</button></li>
+            <li><button class="dropdown-item" onclick="changeLang('hi')">हिंदी</button></li>
+          </ul>
+        </li>
 
         <li class="nav-item"><a class="nav-link" style="color:rgba(251,191,36,.85)!important" href="{{ url_for('logout') }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke:rgba(251,191,36,.85)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -129,7 +138,16 @@
       </ul>
       {% else %}
       <ul class="navbar-nav ms-auto align-items-center gap-2">
-        <li class="nav-item"><button class="lang-toggle" id="lang-btn" onclick="toggleLang()">मराठी</button></li>
+        <li class="nav-item dropdown">
+          <button class="lang-toggle" id="lang-btn-out" data-bs-toggle="dropdown" aria-expanded="false" style="display:flex; align-items:center;">
+            English <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;vertical-align:-2px"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" style="min-width: 120px;">
+            <li><button class="dropdown-item" onclick="changeLang('en')">English</button></li>
+            <li><button class="dropdown-item" onclick="changeLang('mr')">मराठी</button></li>
+            <li><button class="dropdown-item" onclick="changeLang('hi')">हिंदी</button></li>
+          </ul>
+        </li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
         <li class="nav-item"><a class="btn btn-eco-amber btn-sm px-4" href="{{ url_for('register') }}">Get Started</a></li>
       </ul>
