@@ -10,7 +10,9 @@ from ai_engine import (ecobot, predictor, recommender,
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'carbon_tracker_hackathon_2024'
 # Change line 12 in the main app.py file to:
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:2004@localhost:5432/carbon_tracker_db'
+import os
+# This will try to get the Vercel Database URL, or fall back to your local computer's DB!
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:2004@localhost:5432/carbon_tracker_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
